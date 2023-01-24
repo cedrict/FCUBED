@@ -877,7 +877,7 @@ for istep in range(0,nstep):
     ###########################################################################
     start = time.time()
 
-    if istep%every_pdf==11110:
+    if istep%every_pdf==0:
        export_swarm_to_pdf(Lx,Ly,swarm_x,\
                                  swarm_y,\
                                  swarm_eta,\
