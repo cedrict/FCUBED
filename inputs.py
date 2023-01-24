@@ -52,7 +52,7 @@ if experiment==1:
    velofact=1
 
    niter=2
-   nstep=2
+   nstep=1
    CFL_nb=0.25
    output_folder='./' 
    nmarker_per_dim=10
@@ -103,5 +103,18 @@ if experiment==1:
    nseed=20
    wseed=a_inclusion/8 #width
    aseed=0.75          #amplitude
+
+   #fluids
+   use_fluid=True
+   beta=1e-10
+   eta_fluid=1.33e-4
+   p_ref=background_pressure* pf_coefficient
+   phi0=0.01
+   phi_max=0.1
+   K0=1e-26
+
+
+
+
 
 

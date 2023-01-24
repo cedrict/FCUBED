@@ -46,7 +46,7 @@ def export_solution_to_pdf(Lx,Ly,nnx,nny,nelx,nely,x,y,u,v,q,exx,eyy,exy,ee,eta,
 
    plt.subplots_adjust(hspace=0.5)
 
-   filename = output_folder+'solution_{:04d}.png'.format(istep)
+   filename = output_folder+'img_solution_{:04d}.png'.format(istep)
    plt.savefig(filename, bbox_inches='tight')
    #plt.show()
    return 
@@ -109,7 +109,7 @@ def export_swarm_to_pdf(Lx,Ly,swarm_x,\
     #plt.colorbar(sc)
     #plt.title('material')
 
-    filename = output_folder+'swarm_{:04d}.png'.format(istep)
+    filename = output_folder+'img_swarm_{:04d}.png'.format(istep)
     plt.savefig(filename,bbox_inches='tight')
 
 

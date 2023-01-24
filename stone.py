@@ -84,6 +84,7 @@ print("------------------------------")
 rVnodes=[-1,+1,+1,-1, 0,+1, 0,-1,0]
 sVnodes=[-1,-1,+1,+1,-1,0,+1,0,0]
 
+
 ###############################################################################
 # grid point and icon setup
 ###############################################################################
@@ -193,6 +194,35 @@ print("     -> total area meas %.8e " %(area.sum()))
 print("     -> total area anal %.8e " %(Lx*Ly))
 
 print("compute elements areas: %.3f s" % (time.time() - start))
+
+
+
+###############################################################################
+# Darcy setup
+###############################################################################
+if use_fluid:
+
+   mPf=9
+   ndofPf=1
+   NPf=NV
+   NfemPf=NV*ndofPf
+
+   bc_fix_Pf=np.zeros(NfemPf,dtype=bool) 
+   bc_val_Pf=np.zeros(NfemPf,dtype=np.float64) 
+   define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,xV,yV,experiment)
+
+   K   = np.zeros(nel,dtype=np.float64) # permeability
+   phi = np.zeros(nel,dtype=np.float64) # porosity
+   H  = np.zeros(nel,dtype=np.float64)  # source
+
+   phi_mem = np.empty(nel,dtype=np.float64)
+
+
+
+
+
+
+
 
 ###############################################################################
 # swarm (=all the particles) setup
@@ -328,7 +358,7 @@ for istep in range(0,nstep):
     bc_fix=np.zeros(NfemV,dtype=bool)        # boundary condition, yes/no
     bc_val=np.zeros(NfemV,dtype=np.float64)  # boundary condition, value
 
-    define_bc(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time)
+    define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time)
 
     print("      boundary conditions: %.3f s" % (time.time() - start))
 
@@ -803,12 +833,97 @@ for istep in range(0,nstep):
     print("     project p on Q2: %.3f s" % (time.time() - start))
 
     ###########################################################################
+    # Darcy 
+    ###########################################################################
+
+    if use_fluid:
+
+       #compute phi
+       phi[:]=phi0
+
+       for iel in range(0,nel):
+           K[iel]= K0*(phi[iel]/phi0)**3
+
+       phi_mem[:]=phi[:]
+
+       A_mat = lil_matrix((NfemPf,NfemPf),dtype=np.float64) # FE matrix 
+       rhs   = np.zeros(NfemPf,dtype=np.float64)          # FE rhs 
+       B_mat=np.zeros((2,mPf),dtype=np.float64)           # gradient matrix B 
+       N_mat = np.zeros((mPf,1),dtype=np.float64)         # shape functions
+
+       for iel in range (0,nel):
+           b_el=np.zeros(mPf,dtype=np.float64)     # elemental rhs
+           a_el=np.zeros((mPf,mPf),dtype=np.float64) # elemental matrix 
+           Kd=np.zeros((mPf,mPf),dtype=np.float64)   # elemental diffusion matrix 
+           for iq in range(0,nqperdim):
+               for jq in range(0,nqperdim):
+                   rq=qcoords[iq]
+                   sq=qcoords[jq]
+                   weightq=qweights[iq]*qweights[jq]
+                   N_mat[0:mPf,0]=NNV(rq,sq)
+                   dNNNVdr[0:mV]=dNNVdr(rq,sq)
+                   dNNNVds[0:mV]=dNNVds(rq,sq)
+                   # calculate jacobian matrix
+                   # replaced by analytical values above
+
+                   # compute dNdx & dNdy
+                   for k in range(0,mPf):
+                       dNNNVdx[k]=jcbi[0,0]*dNNNVdr[k]
+                       dNNNVdy[k]=jcbi[1,1]*dNNNVds[k]
+                       B_mat[0,k]=dNNNVdx[k]
+                       B_mat[1,k]=dNNNVdy[k]
+                   #end for
+
+                   # compute diffusion matrix
+                   Kd=B_mat.T.dot(B_mat)*weightq*jcob*K[iel]/eta_fluid
+
+                   a_el+=Kd
+                   b_el+=N_mat[:,0]*weightq*jcob*(H[iel]-(phi[iel]-phi_mem[iel])/dt)
+
+               #end for jq
+           #end for iq
+
+           # apply boundary conditions
+           for k1 in range(0,mPf):
+               m1=iconV[k1,iel]
+               if bc_fix_Pf[m1]:
+                  Aref=a_el[k1,k1]
+                  for k2 in range(0,mPf):
+                      m2=iconV[k2,iel]
+                      b_el[k2]-=a_el[k2,k1]*bc_val_Pf[m1]
+                      a_el[k1,k2]=0
+                      a_el[k2,k1]=0
+                  a_el[k1,k1]=Aref
+                  b_el[k1]=Aref*bc_val_Pf[m1]
+               #end if
+           #end for
+
+           # assemble matrix A_mat and right hand side rhs
+           for k1 in range(0,mPf):
+               m1=iconV[k1,iel]
+               for k2 in range(0,mPf):
+                   m2=iconV[k2,iel]
+                   A_mat[m1,m2]+=a_el[k1,k2]
+               #end for
+               rhs[m1]+=b_el[k1]
+           #end for
+
+       #end for iel
+
+       Pf = sps.linalg.spsolve(sps.csr_matrix(A_mat),rhs)
+
+       print("     -> Pf (m,M) %.4f %.4f " %(np.min(Pf),np.max(Pf)))
+       print("     -> Pf/bc (m,M) %.4f %.4f " %(np.min(Pf)/p_ref,np.max(Pf)/p_ref))
+
+
+    ###########################################################################
     # export solution to vtu
     ###########################################################################
     start = time.time()
 
     if istep%every_vtu==0:
-       export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,output_folder,istep)
+       export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,\
+                              exx,eyy,exy,ee,Pf,phi,K,output_folder,istep)
 
     print("     export solution to vtu: %.3f s" % (time.time() - start))
 
@@ -889,6 +1004,17 @@ for istep in range(0,nstep):
                                  output_folder,istep)
 
     print("     export swarm to pdf: %.3f s" % (time.time() - start))
+
+
+
+
+
+
+
+
+
+
+
 
     ###########################################################################
         
