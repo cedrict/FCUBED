@@ -360,7 +360,7 @@ for istep in range(0,nstep):
 
     define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time)
 
-    print("      boundary conditions: %.3f s" % (time.time() - start))
+    print("     boundary conditions: %.3f s" % (time.time() - start))
 
     ###########################################################################
     # localise markers 
@@ -396,7 +396,10 @@ for istep in range(0,nstep):
         # compute elemental averagings 
         #################################################################
         start = time.time()
+
         eta_elemental=np.zeros(nel,dtype=np.float64)
+        plastic_strain_eff_elemental=np.zeros(nel,dtype=np.float64)
+
         for im in range(0,nmarker):
             iel=swarm_iel[im]
             NNNV[0:mV]=NNV(swarm_r[im],swarm_s[im])
@@ -404,10 +407,11 @@ for istep in range(0,nstep):
             swarm_eyy[im]=sum(NNNV[0:mV]*eyy[iconV[0:mV,iel]])
             swarm_exy[im]=sum(NNNV[0:mV]*exy[iconV[0:mV,iel]])
             swarm_ee[im]=np.sqrt(0.5*(swarm_exx[im]**2+swarm_eyy[im]**2+2*swarm_exy[im]**2) ) 
-            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],dummy=\
-            viscosity(swarm_x[im],swarm_y[im],swarm_ee[im],\
-                      background_temperature,swarm_mat[im],iter,swarm_plastic_strain_eff[im])
+            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],dum=viscosity(swarm_x[im],swarm_y[im],\
+                                                                   swarm_ee[im],background_temperature,\
+                                                                   swarm_mat[im],iter,swarm_plastic_strain_eff[im])
 
+            plastic_strain_eff_elemental[iel]+=swarm_plastic_strain_eff[im]               
             if abs(avrg)==1 : # arithmetic
                eta_elemental[iel]     +=swarm_eta[im]
             if abs(avrg)==2: # geometric
@@ -415,6 +419,7 @@ for istep in range(0,nstep):
             if abs(avrg)==3: # harmonic
                eta_elemental[iel]     +=1/swarm_eta[im]
         #end for
+        plastic_strain_eff_elemental[:]/=nmarker_in_element[:]
         if abs(avrg)==1:
            eta_elemental[:]/=nmarker_in_element[:]
         if abs(avrg)==2:
@@ -424,6 +429,7 @@ for istep in range(0,nstep):
 
         print("          -> nmarker_in_elt(m,M) %.5e %.5e " %(np.min(nmarker_in_element),np.max(nmarker_in_element)))
         print("          -> eta_elemental (m,M) %.5e %.5e " %(np.min(eta_elemental),np.max(eta_elemental)))
+        print("          -> plastic_strain_eff_elemental (m,M) %.5e %.5e " %(np.min(plastic_strain_eff_elemental),np.max(plastic_strain_eff_elemental)))
 
         print("     markers onto grid: %.3f s" % (time.time() - start))
 
@@ -451,7 +457,6 @@ for istep in range(0,nstep):
         p       = np.zeros(NfemP,dtype=np.float64)         # pressure solution vector
 
         c_mat   = np.array([[2,0,0],[0,2,0],[0,0,1]],dtype=np.float64) 
-        
 
         for iel in range(0,nel):
 
@@ -807,6 +812,8 @@ for istep in range(0,nstep):
     swarm_sigma2[:]=(swarm_sigmaxx[:]+swarm_sigmayy[:])/2. \
                    - np.sqrt( (swarm_sigmaxx[:]-swarm_sigmayy[:])**2/4 +swarm_sigmaxy[:]**2 ) 
 
+    print(np.min(swarm_plastic_strain_eff),np.max(swarm_plastic_strain_eff))
+
     print("     advect markers: %.3f s" % (time.time() - start))
 
     if istep==0: swarm_plastic_strain_eff0[:]=swarm_plastic_strain_eff[:]
@@ -839,12 +846,14 @@ for istep in range(0,nstep):
     if use_fluid:
 
        #compute phi
-       phi[:]=phi0
+       phi[:]=phi0 + plastic_strain_eff_elemental[:]*(phi_max-phi0)
+       #phi=np.min(phi,phi_max)
+
+       print('phi:',np.min(phi),np.max(phi))
 
        for iel in range(0,nel):
            K[iel]= K0*(phi[iel]/phi0)**3
 
-       phi_mem[:]=phi[:]
 
        A_mat = lil_matrix((NfemPf,NfemPf),dtype=np.float64) # FE matrix 
        rhs   = np.zeros(NfemPf,dtype=np.float64)          # FE rhs 
@@ -915,6 +924,7 @@ for istep in range(0,nstep):
        print("     -> Pf (m,M) %.4f %.4f " %(np.min(Pf),np.max(Pf)))
        print("     -> Pf/bc (m,M) %.4f %.4f " %(np.min(Pf)/p_ref,np.max(Pf)/p_ref))
 
+       phi_mem[:]=phi[:]
 
     ###########################################################################
     # export solution to vtu
@@ -923,7 +933,7 @@ for istep in range(0,nstep):
 
     if istep%every_vtu==0:
        export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,\
-                              exx,eyy,exy,ee,Pf,phi,K,output_folder,istep)
+                              exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,output_folder,istep)
 
     print("     export solution to vtu: %.3f s" % (time.time() - start))
 

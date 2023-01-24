@@ -51,8 +51,8 @@ if experiment==1:
    t2=200*year
    velofact=1
 
-   niter=2
-   nstep=1
+   niter=1
+   nstep=10
    CFL_nb=0.25
    output_folder='./' 
    nmarker_per_dim=10
