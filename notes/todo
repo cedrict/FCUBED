@@ -1,0 +1,39 @@
+FCubed=FFF=Fluid Fracturing Flow 
+
+
+- create outputfolder name
+- nonlinear residual
+- source term
+- fluid velocity recover
+- mu=tau_e/(plith-Pf_darcy)  in vtu
+- forumlation Darcy syimpson vs rest monde
+- cfl de Darcy? 
+- put back time in darcy
+- compute velocity darcy!
+- jit?
+- export solution Q1 vtu
+- make pvd files
+- change py files pdf
+- export source terms in vtk/png
+- log file 
+- create sed script 
+- formats ecriture
+- measure vtheta rotation clast?
+- separate sr vis et sr plast - see stone 121
+- ar figs swarm
+- regarder ee =0 nan ds material model
+
+create history.txt
+- istep time + columns
+- measure % markers in clast with ee > 2 background sr
+- measure % markers in clast with plastic strain eff > 1 
+- 
+
+
+benchmarks:
+- solvi
+- poiseuille NL
+- (E)VP experiment gerya 3 mats 
+- darcy? simpson ? 
+- gaussian diffusion in time 
+- 

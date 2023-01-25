@@ -11,7 +11,7 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
        if experiment==-1: # shear
           val=1
           is_plastic=False
-          yield_vM=0
+          yield_DP=0
           strain_level=0
 
     else:
@@ -37,9 +37,9 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
           c_sw=cohesion_values[imat-1]*weakening_factor_cohesion
           strain_level=1
 
-       yield_vM=background_pressure*(1-pf_coefficient)*np.sin(phi_sw)+c_sw*np.cos(phi_sw)
+       yield_DP=background_pressure*(1-pf_coefficient)*np.sin(phi_sw)+c_sw*np.cos(phi_sw)
 
-       eta_pl=yield_vM/2/ee
+       eta_pl=yield_DP/2/ee
        val=min(eta_pl,eta_dsl)
        if eta_pl<eta_dsl: 
           is_plastic=1 
@@ -50,5 +50,5 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
        val=min(val,1e26)
        val=max(val,1e18)
 
-    return val,is_plastic,yield_vM,strain_level
+    return val,is_plastic,yield_DP,strain_level
 

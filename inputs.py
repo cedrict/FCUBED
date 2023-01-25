@@ -35,7 +35,7 @@ if experiment==1:
    #geometry
    Lx=2e-2 # horizontal extent of the domain in m 
    Ly=1e-2 # vertical extent of the domain in m
-   nelx = 30             #number of elements in horizontal direction
+   nelx = 40             #number of elements in horizontal direction
    nely = int(nelx*Ly/Lx) #number of elements in vertical direction
 
    #clast
@@ -51,19 +51,18 @@ if experiment==1:
    t2=200*year
    velofact=1
 
-   niter=1
-   nstep=10
+   niter=3
+   nstep=5
    CFL_nb=0.25
-   output_folder='./' 
-   nmarker_per_dim=10
+   nmarker_per_dim=7
    eta_ref=1e20
    tol=1e-8
    tfinal=15*Myr
    every_pdf=1
    every_vtu=1
 
-   strainrate=1e-15
-   v_ref=strainrate*Ly # bc velocity so that shear strain rate is 10^-15
+   background_strainrate=1e-15
+   v_ref=background_strainrate*Ly # bc velocity so that shear strain rate is 10^-15
 
    #ductile rheology
    matrix='Ab_GSI' 
@@ -93,11 +92,11 @@ if experiment==1:
    weakening_factor_phi=0.1
    weakening_factor_cohesion=0.1
 
-   depth=40
-   depth*=km
+   depth_km=40
+   depth=depth_km*km
    background_pressure=3000*9.81*depth 
-   background_temperature=490
-   background_temperature+=273 
+   background_temperature_C=490
+   background_temperature=background_temperature_C+273
    pf_coefficient=0.9
 
    nseed=20
@@ -108,13 +107,34 @@ if experiment==1:
    use_fluid=True
    beta=1e-10
    eta_fluid=1.33e-4
-   p_ref=background_pressure* pf_coefficient
+   p_ref=background_pressure*pf_coefficient
    phi0=0.01
    phi_max=0.1
    K0=1e-26
+   Hcoeff=5e-8
+   H0=0
+   Hmax=1e-5 #grossse louche 
 
+   #--------------------
 
+   path='.'
 
-
-
+   if not use_fluid:
+      if velofact==1: #no velocity jump
+         output_folder=path+'/S-T='+str(background_temperature_C)+\
+                              '-P='+str(depth_km)+\
+                              '-pf='+str(pf_coefficient)+'/'
+      else:
+         output_folder=path+'/SV-T='+str(background_temperature_C)+\
+                               '-P='+str(depth_km)+\
+                              '-pf='+str(pf_coefficient)+'/'
+   else:
+      if velofact==1: #no velocity jump
+         output_folder=path+'/F-T='+str(background_temperature_C)+\
+                              '-P='+str(depth_km)+\
+                             '-pf='+str(pf_coefficient)+'/'
+      else:
+         output_folder=path+'/FV-T='+str(background_temperature_C)+\
+                               '-P='+str(depth_km)+\
+                              '-pf='+str(pf_coefficient)+'/'
 

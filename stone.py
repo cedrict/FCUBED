@@ -23,13 +23,25 @@ from make_clast import *
 from export_solution_to_pdf import *
 
 ###############################################################################
+#opening/creating files/folders 
 
-#sys.stdout = open(output_folder+'log.txt', 'w')
+if not os.path.isdir(output_folder):
+   #print('The results folder '+output_folder+' does not exist. Creating a new one..')
+   #print("------------------------------")
+   os.mkdir(output_folder)
+#else:
+   #print('The results folder '+output_folder+' already exists!')
+   #print("------------------------------")
+
+sys.stdout = open(output_folder+'log.txt', 'w')
+
+convfile=open(output_folder+'conv.ascii',"w")
+
+###############################################################################
 
 print("-----------------------------")
 print("----------- fcubed ----------")
 print("-----------------------------")
-
     
 nnx=2*nelx+1  # number of elements, x direction
 nny=2*nely+1  # number of elements, y direction
@@ -48,23 +60,12 @@ hy=Ly/nely # size of element in y direction
 nmarker_per_element=nmarker_per_dim**2
 nmarker=nel*nmarker_per_element
 
+###############################################################################
 #quadrature parameters
+
 nqperdim=3
 qcoords=[-np.sqrt(3./5.),0.,np.sqrt(3./5.)]
 qweights=[5./9.,8./9.,5./9.]
-
-###############################################################################
-#opening/creating files/folders 
-
-if not os.path.isdir(output_folder):
-   print('The results folder '+output_folder+' does not exist. Creating a new one..')
-   print("------------------------------")
-   os.mkdir(output_folder)
-else:
-   print('The results folder '+output_folder+' already exists!')
-   print("------------------------------")
-
-convfile=open(output_folder+'conv.ascii',"w")
 
 ###############################################################################
 
@@ -83,7 +84,6 @@ print("------------------------------")
 
 rVnodes=[-1,+1,+1,-1, 0,+1, 0,-1,0]
 sVnodes=[-1,-1,+1,+1,-1,0,+1,0,0]
-
 
 ###############################################################################
 # grid point and icon setup
@@ -854,6 +854,12 @@ for istep in range(0,nstep):
        for iel in range(0,nel):
            K[iel]= K0*(phi[iel]/phi0)**3
 
+           #use ee of element mid node for elemental ee
+           H[iel]+=max(0,(ee[iconV[4,iel]]-background_strainrate)*dt*Hcoeff ) #source increment cannot <0
+           #H[iel]=H0 + noninitial_plastic_strain_eff_elemental[iel]*(Hmax-H0) #field does not exist yet
+
+
+       #---------------------------------------------------
 
        A_mat = lil_matrix((NfemPf,NfemPf),dtype=np.float64) # FE matrix 
        rhs   = np.zeros(NfemPf,dtype=np.float64)          # FE rhs 
@@ -933,7 +939,7 @@ for istep in range(0,nstep):
 
     if istep%every_vtu==0:
        export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,\
-                              exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,output_folder,istep)
+                              exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,H,output_folder,istep)
 
     print("     export solution to vtu: %.3f s" % (time.time() - start))
 
@@ -981,10 +987,9 @@ for istep in range(0,nstep):
     ###########################################################################
     # export solution to ascii
     ###########################################################################
-
     #np.savetxt('velocity.ascii',np.array([xV,yV,u,v]).T,header='# x,y,u,v')
     #np.savetxt('pressure_aft.ascii',np.array([xP,yP,p]).T,header='# x,y,p')
-    np.savetxt('markers.ascii',np.array([swarm_x,swarm_y,swarm_mat,swarm_eta,swarm_plastic_strain_eff]).T)
+    #np.savetxt('markers.ascii',np.array([swarm_x,swarm_y,swarm_mat,swarm_eta,swarm_plastic_strain_eff]).T)
 
     ###########################################################################
     # export solution to pdf via matplotlib

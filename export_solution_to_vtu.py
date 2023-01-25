@@ -1,7 +1,8 @@
 from constants_and_tools import *
 from inputs import p_ref
 
-def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff,output_folder,istep):
+def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,\
+                           Pf,phi,K,plastic_strain_eff,H,output_folder,istep):
 
     # the 9-node Q2 element does not exist in vtk, but the 8-node one 
     # does, i.e. type=23. 
@@ -40,6 +41,12 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
     for iel in range (0,nel):
         vtufile.write("%10e\n" % plastic_strain_eff[iel]) 
     vtufile.write("</DataArray>\n")
+    #--
+    vtufile.write("<DataArray type='Float32' Name='H' Format='ascii'> \n")
+    for iel in range (0,nel):
+        vtufile.write("%10e\n" % H[iel]) 
+    vtufile.write("</DataArray>\n")
+
 
 
 
