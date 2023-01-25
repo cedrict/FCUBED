@@ -2,7 +2,7 @@ from constants_and_tools import *
 from inputs import p_ref
 
 def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,\
-                           Pf,phi,K,plastic_strain_eff,H,output_folder,istep):
+                           Pf,phi,K,plastic_strain_eff,H,u_darcy,v_darcy,output_folder,istep):
 
     # the 9-node Q2 element does not exist in vtk, but the 8-node one 
     # does, i.e. type=23. 
@@ -26,6 +26,13 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
     for iel in range (0,nel):
         vtufile.write("%10e\n" % eta_elemental[iel]) 
     vtufile.write("</DataArray>\n")
+    #--
+    vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity Darcy' Format='ascii'> \n")
+    for iel in range (0,nel):
+        vtufile.write("%e %e %e\n" % (u_darcy[iel],v_darcy[iel],0)) 
+    vtufile.write("</DataArray>\n")
+
+
     #--
     vtufile.write("<DataArray type='Float32' Name='porosity (phi)' Format='ascii'> \n")
     for iel in range (0,nel):

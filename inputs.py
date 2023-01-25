@@ -26,7 +26,7 @@ if experiment==-1:
    v_ref=1
    tol=1e-8
    tfinal=1e50
-   every_pdf=10
+   every_png=10
    every_vtu=10
 
 
@@ -51,14 +51,14 @@ if experiment==1:
    t2=200*year
    velofact=1
 
-   niter=3
+   niter=2
    nstep=5
    CFL_nb=0.25
    nmarker_per_dim=7
    eta_ref=1e20
    tol=1e-8
    tfinal=15*Myr
-   every_pdf=1
+   every_png=1
    every_vtu=1
 
    background_strainrate=1e-15

@@ -17,10 +17,12 @@ from constants_and_tools import *
 from inputs import *
 from material_model import *
 from define_bc import *
+from make_clast import *
+from write_history import *
 from export_solution_to_vtu import *
 from export_swarm_to_vtu import *
-from make_clast import *
-from export_solution_to_pdf import *
+from export_solution_to_png import *
+from export_swarm_to_png import *
 
 ###############################################################################
 #opening/creating files/folders 
@@ -33,7 +35,7 @@ if not os.path.isdir(output_folder):
    #print('The results folder '+output_folder+' already exists!')
    #print("------------------------------")
 
-sys.stdout = open(output_folder+'log.txt', 'w')
+#sys.stdout = open(output_folder+'log.txt', 'w')
 
 convfile=open(output_folder+'conv.ascii',"w")
 
@@ -200,29 +202,26 @@ print("compute elements areas: %.3f s" % (time.time() - start))
 ###############################################################################
 # Darcy setup
 ###############################################################################
-if use_fluid:
 
-   mPf=9
-   ndofPf=1
-   NPf=NV
-   NfemPf=NV*ndofPf
+mPf=9
+ndofPf=1
+NPf=NV
+NfemPf=NV*ndofPf
+
+K   = np.zeros(nel,dtype=np.float64) # permeability
+phi = np.zeros(nel,dtype=np.float64) # porosity
+H   = np.zeros(nel,dtype=np.float64) # source term
+Pf  = np.zeros(NPf,dtype=np.float64) # pore fluid pressure
+u_darcy=np.zeros(nel,dtype=np.float64)
+v_darcy=np.zeros(nel,dtype=np.float64)
+
+if use_fluid:
 
    bc_fix_Pf=np.zeros(NfemPf,dtype=bool) 
    bc_val_Pf=np.zeros(NfemPf,dtype=np.float64) 
    define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,xV,yV,experiment)
 
-   K   = np.zeros(nel,dtype=np.float64) # permeability
-   phi = np.zeros(nel,dtype=np.float64) # porosity
-   H  = np.zeros(nel,dtype=np.float64)  # source
-
    phi_mem = np.empty(nel,dtype=np.float64)
-
-
-
-
-
-
-
 
 ###############################################################################
 # swarm (=all the particles) setup
@@ -812,7 +811,7 @@ for istep in range(0,nstep):
     swarm_sigma2[:]=(swarm_sigmaxx[:]+swarm_sigmayy[:])/2. \
                    - np.sqrt( (swarm_sigmaxx[:]-swarm_sigmayy[:])**2/4 +swarm_sigmaxy[:]**2 ) 
 
-    print(np.min(swarm_plastic_strain_eff),np.max(swarm_plastic_strain_eff))
+    print("          -> swarm_plastic_strain_eff (m,M):",np.min(swarm_plastic_strain_eff),np.max(swarm_plastic_strain_eff))
 
     print("     advect markers: %.3f s" % (time.time() - start))
 
@@ -849,7 +848,7 @@ for istep in range(0,nstep):
        phi[:]=phi0 + plastic_strain_eff_elemental[:]*(phi_max-phi0)
        #phi=np.min(phi,phi_max)
 
-       print('phi:',np.min(phi),np.max(phi))
+       print('      -> phi (m,M):',np.min(phi),np.max(phi))
 
        for iel in range(0,nel):
            K[iel]= K0*(phi[iel]/phi0)**3
@@ -932,6 +931,31 @@ for istep in range(0,nstep):
 
        phi_mem[:]=phi[:]
 
+       #-----------------------------------------------------------------------
+       # compute fluid velocity field
+
+       for iel in range(0,nel):
+           rq = 0.0
+           sq = 0.0
+           dNNNVdr[0:mV]=dNNVdr(rq,sq)
+           dNNNVds[0:mV]=dNNVds(rq,sq)
+           #print(dNNNVdr,dNNNVds,jcbi[0,0],jcbi[1,1])
+           # calculate jacobian matrix
+           # replaced by analytical values above
+           # compute dNdx & dNdy
+           for k in range(0,mPf):
+               dNNNVdx[k]=jcbi[0,0]*dNNNVdr[k]
+               dNNNVdy[k]=jcbi[1,1]*dNNNVds[k]
+           #end for
+           u_darcy[iel]=-dNNNVdx[0:mPf].dot(Pf[iconV[0:mPf,iel]])*K[iel]/eta_fluid
+           v_darcy[iel]=-dNNNVdy[0:mPf].dot(Pf[iconV[0:mPf,iel]])*K[iel]/eta_fluid
+       #end for
+
+       print("     -> u_darcy (m,M) %e %e " %(np.min(u_darcy),np.max(u_darcy)))
+       print("     -> v_darcy (m,M) %e %e " %(np.min(v_darcy),np.max(v_darcy)))
+
+    #end if use_fluid
+
     ###########################################################################
     # export solution to vtu
     ###########################################################################
@@ -939,7 +963,8 @@ for istep in range(0,nstep):
 
     if istep%every_vtu==0:
        export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,\
-                              exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,H,output_folder,istep)
+                              exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,\
+                              H,u_darcy,v_darcy,output_folder,istep)
 
     print("     export solution to vtu: %.3f s" % (time.time() - start))
 
@@ -960,10 +985,7 @@ for istep in range(0,nstep):
                                 swarm_plastic_strainxy,\
                                 swarm_plastic_strain_eff,\
                                 swarm_plastic_strain_eff0,\
-                                swarm_exx,\
-                                swarm_eyy,\
-                                swarm_exy,\
-                                swarm_ee,\
+                                swarm_exx,swarm_eyy,swarm_exy,swarm_ee,\
                                 swarm_sw_level,\
                                 swarm_is_plastic,\
                                 swarm_tauxx,\
@@ -992,23 +1014,23 @@ for istep in range(0,nstep):
     #np.savetxt('markers.ascii',np.array([swarm_x,swarm_y,swarm_mat,swarm_eta,swarm_plastic_strain_eff]).T)
 
     ###########################################################################
-    # export solution to pdf via matplotlib
+    # export solution to png via matplotlib
     ###########################################################################
     start = time.time()
 
-    if istep%every_pdf==0:
-       export_solution_to_pdf(Lx,Ly,nnx,nny,nelx,nely,xV,yV,u,v,q,exx,eyy,exy,ee,\
-                              eta_elemental,q,output_folder,istep)
+    if istep%every_png==0:
+       export_solution_to_png(Lx,Ly,nnx,nny,nelx,nely,xV,yV,u,v,q,exx,eyy,exy,ee,\
+                              eta_elemental,Pf,K,phi,H,output_folder,istep)
 
-    print("     export solution to pdf: %.3f s" % (time.time() - start))
+    print("     export solution to png: %.3f s" % (time.time() - start))
 
     ###########################################################################
-    # export swarm to pdf via matplotlib
+    # export swarm to png via matplotlib
     ###########################################################################
     start = time.time()
 
-    if istep%every_pdf==0:
-       export_swarm_to_pdf(Lx,Ly,swarm_x,\
+    if istep%every_png==0:
+       export_swarm_to_png(Lx,Ly,swarm_x,\
                                  swarm_y,\
                                  swarm_eta,\
                                  swarm_mat,\
@@ -1018,21 +1040,14 @@ for istep in range(0,nstep):
                                  swarm_plastic_strain_eff,\
                                  output_folder,istep)
 
-    print("     export swarm to pdf: %.3f s" % (time.time() - start))
-
-
-
-
-
-
-
-
-
-
+    print("     export swarm to png: %.3f s" % (time.time() - start))
 
 
     ###########################################################################
+
+    write_history(output_folder,total_time,istep,u,v)
         
+    ###########################################################################
     if total_time>tfinal:
        print('     ***tfinal reached**')
        break
