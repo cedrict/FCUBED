@@ -1,5 +1,6 @@
 from constants_and_tools import *
-from inputs import p_ref
+from inputs import *
+from analytical_solutions import *
 
 def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,\
                            Pf,phi,K,plastic_strain_eff,H,u_darcy,v_darcy,output_folder,istep):
@@ -27,36 +28,32 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
         vtufile.write("%10e\n" % eta_elemental[iel]) 
     vtufile.write("</DataArray>\n")
     #--
-    vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity Darcy' Format='ascii'> \n")
-    for iel in range (0,nel):
-        vtufile.write("%e %e %e\n" % (u_darcy[iel],v_darcy[iel],0)) 
-    vtufile.write("</DataArray>\n")
-
-
-    #--
-    vtufile.write("<DataArray type='Float32' Name='porosity (phi)' Format='ascii'> \n")
-    for iel in range (0,nel):
-        vtufile.write("%10e\n" % phi[iel]) 
-    vtufile.write("</DataArray>\n")
-    #--
-    vtufile.write("<DataArray type='Float32' Name='permeability (K)' Format='ascii'> \n")
-    for iel in range (0,nel):
-        vtufile.write("%10e\n" % K[iel]) 
-    vtufile.write("</DataArray>\n")
+    if use_fluid:
+       vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity Darcy' Format='ascii'> \n")
+       for iel in range (0,nel):
+           vtufile.write("%e %e %e\n" % (u_darcy[iel],v_darcy[iel],0)) 
+       vtufile.write("</DataArray>\n")
     #--
     vtufile.write("<DataArray type='Float32' Name='plastic strain (eff)' Format='ascii'> \n")
     for iel in range (0,nel):
         vtufile.write("%10e\n" % plastic_strain_eff[iel]) 
     vtufile.write("</DataArray>\n")
     #--
-    vtufile.write("<DataArray type='Float32' Name='H' Format='ascii'> \n")
-    for iel in range (0,nel):
-        vtufile.write("%10e\n" % H[iel]) 
-    vtufile.write("</DataArray>\n")
-
-
-
-
+    if use_fluid:
+       vtufile.write("<DataArray type='Float32' Name='H' Format='ascii'> \n")
+       for iel in range (0,nel):
+           vtufile.write("%10e\n" % H[iel]) 
+       vtufile.write("</DataArray>\n")
+       #--
+       vtufile.write("<DataArray type='Float32' Name='porosity (phi)' Format='ascii'> \n")
+       for iel in range (0,nel):
+           vtufile.write("%10e\n" % phi[iel]) 
+       vtufile.write("</DataArray>\n")
+       #--
+       vtufile.write("<DataArray type='Float32' Name='permeability (K)' Format='ascii'> \n")
+       for iel in range (0,nel):
+           vtufile.write("%10e\n" % K[iel]) 
+       vtufile.write("</DataArray>\n")
     #--
     vtufile.write("</CellData>\n")
     #####
@@ -82,15 +79,16 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
         vtufile.write("%10e \n" %q[i])
     vtufile.write("</DataArray>\n")
     #--
-    vtufile.write("<DataArray type='Float32' Name='pore fluid pressure (Pf)' Format='ascii'> \n")
-    for i in range(0,NV):
-        vtufile.write("%15e \n" %Pf[i])
-    vtufile.write("</DataArray>\n")
-    #--
-    vtufile.write("<DataArray type='Float32' Name='pore fluid pressure (Pf/p_ref)' Format='ascii'> \n")
-    for i in range(0,NV):
-        vtufile.write("%15e \n" %(Pf[i]/p_ref))
-    vtufile.write("</DataArray>\n")
+    if use_fluid:
+       vtufile.write("<DataArray type='Float32' Name='pore fluid pressure (Pf)' Format='ascii'> \n")
+       for i in range(0,NV):
+           vtufile.write("%15e \n" %Pf[i])
+       vtufile.write("</DataArray>\n")
+       #--
+       vtufile.write("<DataArray type='Float32' Name='pore fluid pressure (Pf/p_ref)' Format='ascii'> \n")
+       for i in range(0,NV):
+           vtufile.write("%15e \n" %(Pf[i]/p_ref))
+       vtufile.write("</DataArray>\n")
     #--
     vtufile.write("<DataArray type='Float32' Name='exx' Format='ascii'> \n")
     for i in range (0,NV):
@@ -111,6 +109,21 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
     for i in range (0,NV):
         vtufile.write("%10e\n" % ee[i])
     vtufile.write("</DataArray>\n")
+
+    if experiment==-3: #solvi
+       #--
+       vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity (analytical)' Format='ascii'> \n")
+       for i in range (0,NV):
+           ui,vi,pi=analytical_solution(xV[i],yV[i],experiment)
+           vtufile.write("%e %e %e\n" % (ui,vi,0)) 
+       vtufile.write("</DataArray>\n")
+       #--
+       vtufile.write("<DataArray type='Float32' Name='pressure (analytical)' Format='ascii'> \n")
+       for i in range (0,NV):
+           ui,vi,pi=analytical_solution(xV[i],yV[i],experiment)
+           vtufile.write("%e\n" % pi) 
+       vtufile.write("</DataArray>\n")
+
     #--
     vtufile.write("</PointData>\n")
     #####

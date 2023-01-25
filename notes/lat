@@ -1,0 +1,2 @@
+biber --output-safechars notes
+pdflatex notes.tex

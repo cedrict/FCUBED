@@ -23,6 +23,7 @@ from export_solution_to_vtu import *
 from export_swarm_to_vtu import *
 from export_solution_to_png import *
 from export_swarm_to_png import *
+from compute_errors import *
 
 ###############################################################################
 #opening/creating files/folders 
@@ -62,15 +63,12 @@ hy=Ly/nely # size of element in y direction
 nmarker_per_element=nmarker_per_dim**2
 nmarker=nel*nmarker_per_element
 
-###############################################################################
-#quadrature parameters
-
-nqperdim=3
-qcoords=[-np.sqrt(3./5.),0.,np.sqrt(3./5.)]
-qweights=[5./9.,8./9.,5./9.]
 
 ###############################################################################
 
+print("experiment: ",experiment)
+print("Lx",Lx)
+print("Ly",Ly)
 print("nelx",nelx)
 print("nely",nely)
 print("nel",nel)
@@ -182,7 +180,13 @@ for iel in range(0,nel):
                 jcb[0,1] += dNNNVdr[k]*yV[iconV[k,iel]]
                 jcb[1,0] += dNNNVds[k]*xV[iconV[k,iel]]
                 jcb[1,1] += dNNNVds[k]*yV[iconV[k,iel]]
+            xq=0
+            yq=0
+            for k in range(0,mV):
+                xq+=NNNV[k]*xV[iconV[k,iel]]
+                yq+=NNNV[k]*yV[iconV[k,iel]]
             jcob = np.linalg.det(jcb)
+            jcbi = np.linalg.inv(jcb)
             area[iel]+=jcob*weightq
         if area[iel]<0: 
            for k in range(0,mV):
@@ -196,8 +200,6 @@ print("     -> total area meas %.8e " %(area.sum()))
 print("     -> total area anal %.8e " %(Lx*Ly))
 
 print("compute elements areas: %.3f s" % (time.time() - start))
-
-
 
 ###############################################################################
 # Darcy setup
@@ -299,7 +301,6 @@ print("swarm setup: %.3f s" % (time.time() - start))
 start = time.time()
 
 make_clast(nmarker,swarm_x,swarm_y,swarm_mat,swarm_plastic_strainxx,swarm_plastic_strainyy,swarm_plastic_strainxy)
-
 
 print("create clast on swarm: %.3f s" % (time.time() - start))
 
@@ -463,7 +464,6 @@ for istep in range(0,nstep):
             K_el =np.zeros((mV*ndofV,mV*ndofV),dtype=np.float64)
             G_el=np.zeros((mV*ndofV,mP*ndofP),dtype=np.float64)
             h_el=np.zeros((mP*ndofP),dtype=np.float64)
-            NNNNP= np.zeros(mP*ndofP,dtype=np.float64)   
 
             V_el=np.zeros((mV*ndofV),dtype=np.float64)
             P_el=np.zeros((mP*ndofP),dtype=np.float64)
@@ -495,7 +495,11 @@ for istep in range(0,nstep):
                     # replaced by analytical values above
 
                     # compute dNdx & dNdy
+                    xq=0.0
+                    yq=0.0
                     for k in range(0,mV):
+                        xq+=NNNV[k]*xV[iconV[k,iel]]
+                        yq+=NNNV[k]*yV[iconV[k,iel]]
                         dNNNVdx[k]=jcbi[0,0]*dNNNVdr[k]
                         dNNNVdy[k]=jcbi[1,1]*dNNNVds[k]
 
@@ -519,8 +523,6 @@ for istep in range(0,nstep):
                         N_mat[2,i]=0.
 
                     G_el-=b_mat.T.dot(N_mat)*weightq*jcob
-
-                    #NNNNP[:]+=NNNP[:]*jcob*weightq
 
                 # end for jq
             # end for iq
@@ -546,8 +548,8 @@ for istep in range(0,nstep):
 
             #----------------------------------
             # compute nonlinear residual
-            RV_el=K_el.dot(V_el)+G_el.dot(P_el)-f_el
-            RP_el=G_el.T.dot(V_el)-h_el
+            #RV_el=K_el.dot(V_el)+G_el.dot(P_el)-f_el
+            #RP_el=G_el.T.dot(V_el)-h_el
 
             # scaling of blocks 
             G_el*=eta_ref/Ly
@@ -614,9 +616,14 @@ for istep in range(0,nstep):
         u,v=np.reshape(sol[0:NfemV],(NV,2)).T
         p=sol[NfemV:Nfem]*(eta_ref/Ly)
 
-        print("          -> u (m,M) %.4e %.4e (cm/year)" %(np.min(u)/cm*year,np.max(u)/cm*year))
-        print("          -> v (m,M) %.4e %.4e (cm/year)" %(np.min(v)/cm*year,np.max(v)/cm*year))
-        print("          -> p (m,M) %.4e %.4e (Pa)     " %(np.min(p),np.max(p)))
+        if experiment==-1:
+           print("          -> u (m,M) %.4e %.4e (m/s)" %(np.min(u),np.max(u)))
+           print("          -> v (m,M) %.4e %.4e (m/s)" %(np.min(v),np.max(v)))
+           print("          -> p (m,M) %.4e %.4e (Pa) " %(np.min(p),np.max(p)))
+        else:
+           print("          -> u (m,M) %.4e %.4e (cm/year)" %(np.min(u)/cm*year,np.max(u)/cm*year))
+           print("          -> v (m,M) %.4e %.4e (cm/year)" %(np.min(v)/cm*year,np.max(v)/cm*year))
+           print("          -> p (m,M) %.4e %.4e (Pa)     " %(np.min(p),np.max(p)))
 
         print("     split vel into u,v: %.3f s" % (time.time() - start))
 
@@ -634,7 +641,7 @@ for istep in range(0,nstep):
                     weightq=qweights[iq]*qweights[jq]
                     NNNP[0:mP]=NNP(rq,sq)
                     pq=NNNP.dot(p[iconP[0:mP,iel]])
-                    jcob=hx*hy/4
+                    #jcob=hx*hy/4
                     avrg_p+=pq*jcob*weightq
 
         print('          -> avrg_p=',avrg_p)
@@ -1042,6 +1049,11 @@ for istep in range(0,nstep):
 
     print("     export swarm to png: %.3f s" % (time.time() - start))
 
+    ###########################################################################
+
+    if experiment<0:
+
+       compute_errors(Lx,Ly,nel,hx,xV,yV,u,v,p,iconV,iconP,experiment)
 
     ###########################################################################
 

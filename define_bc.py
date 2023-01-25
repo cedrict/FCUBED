@@ -1,31 +1,68 @@
 from inputs import *
 from constants_and_tools import *
+from analytical_solutions import *
 
 def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time):
 
-    if experiment<0: #pure shear
+    if experiment==-1: #pure shear
 
        for i in range(0, NV):
            #left boundary 
-           if xV[i]<eps:
-              bc_fix[i*ndofV] = True ; bc_val[i*ndofV] = v_ref
+           if xV[i]/Lx<eps:
+              bc_fix[i*ndofV] = True ; bc_val[i*ndofV] = v_ref/Ly
            #right boundary 
            if xV[i]/Lx>1-eps:
-              bc_fix[i*ndofV] = True ; bc_val[i*ndofV] = -v_ref
+              bc_fix[i*ndofV] = True ; bc_val[i*ndofV] = -v_ref/Ly
            #bottom boundary 
            if yV[i]/Ly<eps:
-              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = -v_ref
+              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = -v_ref/Lx
            #top boundary 
            if yV[i]/Ly>1-eps:
-              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = v_ref
+              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = v_ref/Lx
        #end for
 
+    if experiment==-2: #simple shear
 
-    else: # clast under simple shear
+       for i in range(0,NV):
+           #left boundary 
+           if xV[i]/Lx<eps:
+              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0 # vy
+           #right boundary 
+           if xV[i]/Lx>1-eps:
+              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0 # vy
+           #bottom boundary 
+           if yV[i]/Ly<eps:
+              bc_fix[i*ndofV+0] = True ; bc_val[i*ndofV  ] = -v_ref # vx
+              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0   # vy
+           #top boundary 
+           if yV[i]/Ly>1-eps:
+              bc_fix[i*ndofV+0] = True ; bc_val[i*ndofV  ] = +v_ref # vx
+              bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0   # vy
+       #end for
+
+    if experiment==-3: #solvi
+
+       for i in range(0, NV):
+           ui,vi,pi=analytical_solution(xV[i],yV[i],experiment)
+           if xV[i]<eps:
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = ui
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = vi
+           if xV[i]>(Lx-eps):
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = ui
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = vi
+           if yV[i]<eps:
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = ui
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = vi
+           if yV[i]>(Ly-eps):
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = ui
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = vi
+
+
+    elif experiment==1: # clast under simple shear
 
        for i in range(0, NV):
            #left boundary 
-           if xV[i]<eps:
+           if xV[i]/Lx<eps:
               bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0 # vy
            #right boundary 
            if xV[i]/Lx>1-eps:
@@ -40,6 +77,9 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time):
               bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0   # vy
        #end for
 
+    else:
+
+       exit("experiment unknown in define_bc")
 
 ###############################################################################
 

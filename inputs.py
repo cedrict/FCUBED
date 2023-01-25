@@ -3,23 +3,26 @@ from  constants_and_tools import *
 avrg=3
 
 # -1: pure shear
-# -2: 
+# -2: simple shear
+# -3: solvi
+# -4: poiseuille nl
+ 
 
 # 1: clast
 
-experiment=1
+experiment=-3
 
 ###################################################################################################
 
 if experiment==-1:
-   nelx=10
-   nely=10
-   Lx=1.5
+   nelx=24
+   nely=12
+   Lx=2
    Ly=1
    niter=10
    nstep=1
    CFL_nb=0
-   output_folder='./' 
+   output_folder='./pure_shear/' 
    nmarker_per_dim=5
    background_temperature=0
    eta_ref=1
@@ -28,6 +31,52 @@ if experiment==-1:
    tfinal=1e50
    every_png=10
    every_vtu=10
+   use_fluid=False
+   p_ref=0
+
+if experiment==-2: #simple shear
+   nelx=24
+   nely=12
+   Lx=2
+   Ly=1
+   niter=10
+   nstep=1
+   CFL_nb=0
+   output_folder='./simple_shear/' 
+   nmarker_per_dim=5
+   background_temperature=0
+   eta_ref=1
+   v_ref=1
+   tol=1e-8
+   tfinal=1e50
+   every_png=10
+   every_vtu=10
+   use_fluid=False
+   p_ref=0
+
+if experiment==-3: #solvi
+   nelx=7
+   nely=7
+   Lx=1
+   Ly=1
+   niter=10
+   nstep=1
+   CFL_nb=0
+   output_folder='./solvi/' 
+   nmarker_per_dim=5
+   background_temperature=0
+   eta_ref=1
+   v_ref=1
+   tol=1e-8
+   tfinal=1e50
+   every_png=10
+   every_vtu=10
+   use_fluid=False
+   p_ref=0
+
+
+
+
 
 
 if experiment==1:
@@ -35,7 +84,7 @@ if experiment==1:
    #geometry
    Lx=2e-2 # horizontal extent of the domain in m 
    Ly=1e-2 # vertical extent of the domain in m
-   nelx = 40             #number of elements in horizontal direction
+   nelx = 120             #number of elements in horizontal direction
    nely = int(nelx*Ly/Lx) #number of elements in vertical direction
 
    #clast

@@ -8,13 +8,22 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
 
     if experiment<0:
 
-       if experiment==-1: # shear
+       if experiment==-1 or experiment==-2: # shear
           val=1
           is_plastic=False
           yield_DP=0
           strain_level=0
 
-    else:
+       if experiment==-3: #solvi
+          if (np.sqrt(x*x+y*y) < 0.2):
+             val=1e3
+          else:
+             val=1.
+          is_plastic=False
+          yield_DP=0
+          strain_level=0
+
+    elif experiment==1: # shear
        #val=1e20
        #return val,0,0,0
 
@@ -49,6 +58,11 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
        #viscosity cutoffs
        val=min(val,1e26)
        val=max(val,1e18)
+
+    else:
+
+       exit("experiment unknown in material model")
+
 
     return val,is_plastic,yield_DP,strain_level
 

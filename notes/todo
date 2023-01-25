@@ -21,7 +21,7 @@ X- log file
 - separate sr vis et sr plast - see stone 121
 X- ar figs swarm
 - regarder ee =0 nan ds material model
-
+- factor 1/2 in eta disl ?
 
 create hist.txt. (write_history)
 #- istep time + columns
@@ -30,10 +30,3 @@ create hist.txt. (write_history)
 
 
 
-benchmarks:
-- solvi
-- poiseuille NL
-- (E)VP experiment gerya 3 mats 
-- darcy? simpson ? 
-- gaussian diffusion in time 
-- 
