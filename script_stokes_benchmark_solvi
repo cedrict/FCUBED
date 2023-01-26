@@ -1,0 +1,26 @@
+#! /bin/bash
+
+#for mac users uncomment the following
+# make sure there is no trailing space!
+#truc="''"
+
+rm -rf benchmark_solvi 
+
+######################################################
+echo *****SolVi benchmark: running over nelx***** 
+rm -f errors
+
+for n in 8 10 12 14 16 24 32 48; do
+   echo nelx=$n 
+   sed -i $truc "s/nelx=.*/nelx="$n"/" inputs_m3.py
+   python3 stone.py > opla
+   grep errv opla >> errors
+   mv opla* solvi
+   rm -rf solvi_$n
+   mv solvi solvi_$n
+done
+mkdir benchmark_solvi
+mv errors benchmark_solvi
+mv solvi_* benchmark_solvi
+
+

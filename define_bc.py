@@ -1,8 +1,8 @@
-from inputs import *
+#from inputs import *
 from constants_and_tools import *
 from analytical_solutions import *
 
-def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time):
+def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
 
     if experiment==-1: #pure shear
 
@@ -21,7 +21,7 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time):
               bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = v_ref/Lx
        #end for
 
-    if experiment==-2: #simple shear
+    elif experiment==-2: #simple shear
 
        for i in range(0,NV):
            #left boundary 
@@ -40,7 +40,7 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time):
               bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0   # vy
        #end for
 
-    if experiment==-3: #solvi
+    elif experiment==-3: #solvi
 
        for i in range(0, NV):
            ui,vi,pi=analytical_solution(xV[i],yV[i],experiment)

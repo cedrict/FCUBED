@@ -1,0 +1,23 @@
+#! /bin/bash
+
+#for mac users uncomment the following
+# make sure there is no trailing space!
+#truc="''"
+
+######################################################
+echo *****Simple shear benchmark: running over nelx***** 
+rm -f errors
+
+for n in 8 16 24; do
+   echo nelx=$n 
+   sed -i $truc "s/nelx=.*/nelx="$n"/" inputs_m2.py
+   python3 stone.py > opla
+   grep errv opla >> errors
+   mv opla* simple_shear
+   rm -rf simple_shear_$n
+   mv simple_shear simple_shear_$n
+done
+mkdir benchmark_simple_shear
+mv errors benchmark_simple_shear
+mv simple_shear_* benchmark_simple_shear
+

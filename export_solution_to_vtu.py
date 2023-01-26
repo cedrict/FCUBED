@@ -110,7 +110,7 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
         vtufile.write("%10e\n" % ee[i])
     vtufile.write("</DataArray>\n")
 
-    if experiment==-3: #solvi
+    if experiment<0: 
        #--
        vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity (analytical)' Format='ascii'> \n")
        for i in range (0,NV):

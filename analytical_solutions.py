@@ -2,6 +2,17 @@ import numpy as np
 
 def analytical_solution(x,y,experiment):
 
+
+    if experiment==-1: #pure shear
+       vx=1-x
+       vy=-0.5+y
+       p=0
+
+    if experiment==-2: #simple shear
+       vx=2*(y-1/2)
+       vy=0
+       p=0
+
     if experiment==-3:
        min_eta = 1.
        max_eta = 1.e3

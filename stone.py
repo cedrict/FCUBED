@@ -358,7 +358,7 @@ for istep in range(0,nstep):
     bc_fix=np.zeros(NfemV,dtype=bool)        # boundary condition, yes/no
     bc_val=np.zeros(NfemV,dtype=np.float64)  # boundary condition, value
 
-    define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time)
+    define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref)
 
     print("     boundary conditions: %.3f s" % (time.time() - start))
 
@@ -1052,8 +1052,11 @@ for istep in range(0,nstep):
     ###########################################################################
 
     if experiment<0:
+       start = time.time()
 
        compute_errors(Lx,Ly,nel,hx,xV,yV,u,v,p,iconV,iconP,experiment)
+
+       print("     compute_errors: %.3f s" % (time.time() - start))
 
     ###########################################################################
 
