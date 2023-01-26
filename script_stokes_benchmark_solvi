@@ -15,6 +15,7 @@ for n in 8 10 12 14 16 24 32 48; do
    sed -i $truc "s/nelx=.*/nelx="$n"/" inputs_m3.py
    python3 stone.py > opla
    grep errv opla >> errors
+   mv log.txt solvi
    mv opla* solvi
    rm -rf solvi_$n
    mv solvi solvi_$n

@@ -60,6 +60,8 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
 
     elif experiment==1: # clast under simple shear
 
+       from inputs_p1 import t1,t2,velofact
+
        for i in range(0, NV):
            #left boundary 
            if xV[i]/Lx<eps:
@@ -83,7 +85,7 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
 
 ###############################################################################
 
-def define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,x,y,experiment):
+def define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,x,y,experiment,p_ref):
 
     for i in range(0,NPf):
         if y[i]/Ly<eps:

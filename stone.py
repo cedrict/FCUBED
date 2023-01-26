@@ -36,7 +36,7 @@ if not os.path.isdir(output_folder):
    #print('The results folder '+output_folder+' already exists!')
    #print("------------------------------")
 
-#sys.stdout = open(output_folder+'log.txt', 'w')
+sys.stdout = open(output_folder+'log.txt', 'w')
 
 convfile=open(output_folder+'conv.ascii',"w")
 
@@ -221,7 +221,7 @@ if use_fluid:
 
    bc_fix_Pf=np.zeros(NfemPf,dtype=bool) 
    bc_val_Pf=np.zeros(NfemPf,dtype=np.float64) 
-   define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,xV,yV,experiment)
+   define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,xV,yV,experiment,p_ref)
 
    phi_mem = np.empty(nel,dtype=np.float64)
 

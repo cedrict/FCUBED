@@ -1,0 +1,49 @@
+#! /bin/bash
+
+#for mac users uncomment the following
+# make sure there is no trailing space!
+#truc="''"
+
+######################################################
+
+for t in 300 500 700; do
+    for d in 30 40 50 ; do
+        for pf in 0.7 0.8 0.9 ; do
+
+            echo temperature=$t depth=$d pf=$pf
+
+            sed -i $truc "s/background_temperature_C=.*/background_temperature_C="$t"/" inputs_p1.py
+            sed -i $truc "s/depth_km=.*/depth_km="$d"/" inputs_p1.py
+            sed -i $truc "s/pf_coefficient=.*/pf_coefficient="$pf"/" inputs_p1.py
+
+            python3 stone.py > opla #&
+            #mv opla* solvi
+            #rm -rf solvi_$n
+            #mv solvi solvi_$n
+        done
+    done
+done
+
+######################################################
+
+#t=300 ; d=40 ; pf=0.7
+#echo temperature=$t depth=$d pf=$pf
+#sed -i $truc "s/background_temperature_C=.*/background_temperature_C="$t"/" inputs_p1.py
+#sed -i $truc "s/depth_km=.*/depth_km="$d"/" inputs_p1.py
+#sed -i $truc "s/pf_coefficient=.*/pf_coefficient="$pf"/" inputs_p1.py
+#python3 stone.py > opla #&
+
+#t=300 ; d=40 ; pf=0.7
+#echo temperature=$t depth=$d pf=$pf
+#sed -i $truc "s/background_temperature_C=.*/background_temperature_C="$t"/" inputs_p1.py
+#sed -i $truc "s/depth_km=.*/depth_km="$d"/" inputs_p1.py
+#sed -i $truc "s/pf_coefficient=.*/pf_coefficient="$pf"/" inputs_p1.py
+#python3 stone.py > opla #&
+
+
+
+
+
+
+
+

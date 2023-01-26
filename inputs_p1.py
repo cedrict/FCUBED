@@ -1,8 +1,9 @@
+from constants_and_tools import *
 
 #geometry
 Lx=2e-2 # horizontal extent of the domain in m 
 Ly=1e-2 # vertical extent of the domain in m
-nelx = 120             #number of elements in horizontal direction
+nelx = 30             #number of elements in horizontal direction
 nely = int(nelx*Ly/Lx) #number of elements in vertical direction
 
 #clast
@@ -19,7 +20,7 @@ t2=200*year
 velofact=1
 
 niter=2
-nstep=5
+nstep=1
 CFL_nb=0.25
 nmarker_per_dim=7
 eta_ref=1e20
@@ -59,12 +60,12 @@ eps2=1
 weakening_factor_phi=0.1
 weakening_factor_cohesion=0.1
 
-depth_km=40
+depth_km=50
 depth=depth_km*km
 background_pressure=3000*9.81*depth 
-background_temperature_C=490
+background_temperature_C=700
 background_temperature=background_temperature_C+273
-pf_coefficient=0.9
+pf_coefficient=0.7
 
 nseed=20
 wseed=a_inclusion/8 #width
