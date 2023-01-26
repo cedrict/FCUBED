@@ -1,3 +1,13 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 from constants_and_tools import *
 
 def export_swarm_to_vtu(nmarker,swarm_mat,\
@@ -237,5 +247,4 @@ def export_swarm_to_vtu(nmarker,swarm_mat,\
     vtufile.write("</VTKFile>\n")
     vtufile.close()
 
-
-
+###############################################################################

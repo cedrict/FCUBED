@@ -19,7 +19,7 @@ t1=100*year
 t2=200*year
 velofact=1
 
-niter=2
+niter=1
 nstep=1
 CFL_nb=0.25
 nmarker_per_dim=7
@@ -28,6 +28,7 @@ tol=1e-8
 tfinal=15*Myr
 every_png=1
 every_vtu=1
+linear=False
 
 background_strainrate=1e-15
 v_ref=background_strainrate*Ly # bc velocity so that shear strain rate is 10^-15

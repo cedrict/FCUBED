@@ -15,12 +15,12 @@ X- compute velocity darcy!
 X- change py files pdf
 X- export source terms in vtk/png
 X- log file 
-- create sed script 
+%- create sed script 
 - formats ecriture
 - measure vtheta rotation clast?
 - separate sr vis et sr plast - see stone 121
 X- ar figs swarm
-- regarder ee =0 nan ds material model
+X- regarder ee =0 nan ds material model
 - factor 1/2 in eta disl ?
 
 create hist.txt. (write_history)

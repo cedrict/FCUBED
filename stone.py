@@ -26,7 +26,14 @@ from export_swarm_to_png import *
 from compute_errors import *
 
 ###############################################################################
-#opening/creating files/folders 
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
 
 if not os.path.isdir(output_folder):
    #print('The results folder '+output_folder+' does not exist. Creating a new one..')
@@ -36,9 +43,11 @@ if not os.path.isdir(output_folder):
    #print('The results folder '+output_folder+' already exists!')
    #print("------------------------------")
 
-sys.stdout = open(output_folder+'log.txt', 'w')
+#sys.stdout = open(output_folder+'log.txt', 'w')
 
 convfile=open(output_folder+'conv.ascii',"w")
+
+pvdfile=open(output_folder+'solution.pvd',"w")
 
 ###############################################################################
 
@@ -723,6 +732,9 @@ for istep in range(0,nstep):
            print('     ***************')
            break
 
+        if linear: 
+           break
+
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     #end for iter
@@ -857,6 +869,7 @@ for istep in range(0,nstep):
 
        print('      -> phi (m,M):',np.min(phi),np.max(phi))
 
+
        for iel in range(0,nel):
            K[iel]= K0*(phi[iel]/phi0)**3
 
@@ -864,8 +877,8 @@ for istep in range(0,nstep):
            H[iel]+=max(0,(ee[iconV[4,iel]]-background_strainrate)*dt*Hcoeff ) #source increment cannot <0
            #H[iel]=H0 + noninitial_plastic_strain_eff_elemental[iel]*(Hmax-H0) #field does not exist yet
 
-
        #---------------------------------------------------
+       start = time.time()
 
        A_mat = lil_matrix((NfemPf,NfemPf),dtype=np.float64) # FE matrix 
        rhs   = np.zeros(NfemPf,dtype=np.float64)          # FE rhs 
@@ -931,6 +944,8 @@ for istep in range(0,nstep):
 
        #end for iel
 
+       print("     build Darcy FE matrix: %.3f s" % (time.time() - start))
+
        Pf = sps.linalg.spsolve(sps.csr_matrix(A_mat),rhs)
 
        print("     -> Pf (m,M) %.4f %.4f " %(np.min(Pf),np.max(Pf)))
@@ -972,6 +987,9 @@ for istep in range(0,nstep):
        export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,\
                               exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,\
                               H,u_darcy,v_darcy,output_folder,istep)
+
+       pvdfile.write('<DataSet timestep="'+str(istep)+'" group="" part="0" file='\
+                     +output_folder+'"solution_{:04d}.vtu'.format(istep)+'"/>')
 
     print("     export solution to vtu: %.3f s" % (time.time() - start))
 
@@ -1059,8 +1077,11 @@ for istep in range(0,nstep):
        print("     compute_errors: %.3f s" % (time.time() - start))
 
     ###########################################################################
+    start = time.time()
 
-    write_history(output_folder,total_time,istep,u,v)
+    write_history(output_folder,total_time,istep,u,v,ee)
+
+    print("     write history: %.3f s" % (time.time() - start))
         
     ###########################################################################
     if total_time>tfinal:

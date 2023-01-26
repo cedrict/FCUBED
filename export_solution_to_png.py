@@ -1,3 +1,13 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,7 +28,8 @@ def onePlot(axes,fig,variable, plotX, plotY, title, labelX, labelY, extVal, limi
 
 #############################################################################################
 
-def export_solution_to_png(Lx,Ly,nnx,nny,nelx,nely,x,y,u,v,q,exx,eyy,exy,ee,eta,Pf,K,phi,H,output_folder,istep):
+def export_solution_to_png(Lx,Ly,nnx,nny,nelx,nely,x,y,u,v,q,exx,eyy,exy,ee,eta,\
+                           Pf,K,phi,H,output_folder,istep):
 
    u_temp=np.reshape(u,(nny,nnx))
    v_temp=np.reshape(v,(nny,nnx))
@@ -54,6 +65,6 @@ def export_solution_to_png(Lx,Ly,nnx,nny,nelx,nely,x,y,u,v,q,exx,eyy,exy,ee,eta,
 
    filename = output_folder+'img_solution_{:04d}.png'.format(istep)
    plt.savefig(filename, bbox_inches='tight')
-   #plt.show()
    return 
 
+###############################################################################

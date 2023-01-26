@@ -1,5 +1,5 @@
 
-nelx=48
+nelx=80
 nely=nelx
 Lx=1
 Ly=1
@@ -17,3 +17,4 @@ every_png=10
 every_vtu=10
 use_fluid=False
 p_ref=0
+linear=True

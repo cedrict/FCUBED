@@ -1,13 +1,23 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 from inputs import *
 import numpy as np
 import random
 import jatten
 
-def make_clast(nmarker,swarm_x,swarm_y,swarm_mat,swarm_plastic_strainxx,swarm_plastic_strainyy,swarm_plastic_strainxy):
-
-   if experiment==-1:
+def make_clast(nmarker,swarm_x,swarm_y,swarm_mat,swarm_plastic_strainxx,\
+               swarm_plastic_strainyy,swarm_plastic_strainxy):
+   
+   if experiment==-1 or experiment==-2 or experiment==-3:
       swarm_mat[:]=1
-
 
    if experiment==1: # clast
 
@@ -89,132 +99,4 @@ def make_clast(nmarker,swarm_x,swarm_y,swarm_mat,swarm_plastic_strainxx,swarm_pl
       print('nmarker in clast:',counter)
       print('nmarker in seeds:',counter2)
 
-
-######################################################################################################################################
-#######################################################################################################################################
-
-
-
-#######################################################################################################################################
-# Tests FG multi_inclusion
-
-    # xxi=swarm_x[im]-x_inclusion-Lx/4
-    # yyi=swarm_y[im]-y_inclusion+Ly/4
-    # xxxi=xxi*np.cos(-angle_inclusion)-yyi*np.sin(-angle_inclusion)
-    # yyyi=xxi*np.sin(-angle_inclusion)+yyi*np.cos(-angle_inclusion)
-    # thetai=np.arctan(yyyi/xxxi)
-    # xi1=random.uniform(0.5,1)
-    # xi2=random.uniform(0.5,1)
-    # xi3=random.uniform(0.5,1)
-    # if np.sqrt(xxxi**2/a_inclusion**2+yyyi**2/b_inclusion**2)\
-    #    <1+xi1*A1*np.sin(k1*thetai)+xi2*A2*np.cos(k2*thetai)+xi3*A3*np.cos(k3*thetai):
-    #    swarm_mat[im]=2
-    # xxi=swarm_x[im]-x_inclusion+Lx/4
-    # yyi=swarm_y[im]-y_inclusion-Ly/4
-    # xxxi=xxi*np.cos(-angle_inclusion)-yyi*np.sin(-angle_inclusion)
-    # yyyi=xxi*np.sin(-angle_inclusion)+yyi*np.cos(-angle_inclusion)
-    # thetai=np.arctan(yyyi/xxxi)
-    # xi1=random.uniform(0.5,1)
-    # xi2=random.uniform(0.5,1)
-    # xi3=random.uniform(0.5,1)
-    # if np.sqrt(xxxi**2/a_inclusion**2+yyyi**2/b_inclusion**2)\
-    #    <1+xi1*A1*np.sin(k1*thetai)+xi2*A2*np.cos(k2*thetai)+xi3*A3*np.cos(k3*thetai):
-    #    swarm_mat[im]=2
-
-#######################################################################################################################################   
-
-
-
-
-
-
-#################################################################################################
-#             random seed                                                                       #
-#################################################################################################
-#start = time.time()
-
-#for im in range (0,nmarker):
-    
-# Seed in all inclusion           
-                              #
-#    if Amount == 'Only' and swarm_mat[im]==2:
-#        if Values_seed == 'Definite' :
-#            swarm_plastic_strainxx[im]=PS_seed_calc
-#            swarm_plastic_strainxy[im]=PS_seed_calc
-#            swarm_plastic_strainyy[im]=PS_seed_calc
-#            count_seed += 1
-            
-#        if Values_seed == 'Included' :
-#            swarm_plastic_strainxx[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            swarm_plastic_strainxy[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            swarm_plastic_strainyy[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            count_seed += 1  
-            
-#        if Values_seed == 'Random' :
-#            swarm_plastic_strainxx[im]=random.uniform(0,PS_seed_calc)
-#            swarm_plastic_strainxy[im]=random.uniform(0,PS_seed_calc)
-#            swarm_plastic_strainyy[im]=random.uniform(0,PS_seed_calc)
-#            count_seed += 1
-            
-# Punctual seed in inclusion                                        #
-
-#    if Amount == 'Many' and swarm_mat[im]==2 and (swarm_iel[im]%11==0 or swarm_iel[im]%17==0 or swarm_iel[im]%29==0):
-#    #if Amount == 'Many' and swarm_mat[im]==2 and (swarm_iel[im]%Location==0):
-       
-#        if Values == 'Definite' :
-#            swarm_plastic_strainxx[im]=PS_seed_calc
-#            swarm_plastic_strainxy[im]=PS_seed_calc
-#            swarm_plastic_strainyy[im]=PS_seed_calc
-#            count_seed += 1
-        
-#        if Values == 'Included' :
-#            swarm_plastic_strainxx[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            swarm_plastic_strainxy[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            swarm_plastic_strainyy[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            count_seed += 1
-        
-#        if Values == 'Random' :
-#            swarm_plastic_strainxx[im]=random.uniform(0,PS_seed_calc)
-#            swarm_plastic_strainxy[im]=random.uniform(0,PS_seed_calc)
-#            swarm_plastic_strainyy[im]=random.uniform(0,PS_seed_calc)
-#            count_seed += 1
-           
-          
-        
-        # A single seed at the core of inclusion                         #
-        # element in core of inclusion : ((nel/2) -/+ (nelx/2))
-        # Ajouter un +/- 1 si vous voulez que ce soit l'élément à gauche de ceux qui plot
-
-#    if Amount == 'Single' and swarm_mat[im]==2 and (swarm_iel[im]%((nel/2)+(nelx/2))==0):  
-        
-#        if Values == 'Definite' :
-#            swarm_plastic_strainxx[im]=PS_seed_calc
-#            swarm_plastic_strainxy[im]=PS_seed_calc
-#            swarm_plastic_strainyy[im]=PS_seed_calc
-#            count_seed += 1
-            
-#        if Values == 'Included' :
-#            swarm_plastic_strainxx[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            swarm_plastic_strainxy[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            swarm_plastic_strainyy[im]=random.uniform(PS_seed_calc-PS_seed_variation_calc,PS_seed_calc+PS_seed_variation_calc)
-#            count_seed += 1               
-            
-#        if Values == 'Random' :
-#            swarm_plastic_strainxx[im]=random.uniform(0,PS_seed_calc)
-#            swarm_plastic_strainxy[im]=random.uniform(0,PS_seed_calc)
-#            swarm_plastic_strainyy[im]=random.uniform(0,PS_seed_calc)
-#            count_seed += 1
-       
-                  
-#print('seed = ',count_seed)   
-#prop_seed = (count_seed/count_inclusion)*100
-#print ('CONCLUSION = ', prop_seed,'% de seed dans inclusion')
-#print("paint swarm strain in inclusion: %.3f s" % (time.time() - start))
-
-#######################################################################################################################################
-#######################################################################################################################################
-
-
-
-
-
+###############################################################################

@@ -10,7 +10,7 @@ rm -rf benchmark_solvi
 echo *****SolVi benchmark: running over nelx***** 
 rm -f errors
 
-for n in 8 10 12 14 16 24 32 48; do
+for n in 8 10 12 14 16 20 24 28 32 36 40 44 48 56 64 80; do
    echo nelx=$n 
    sed -i $truc "s/nelx=.*/nelx="$n"/" inputs_m3.py
    python3 stone.py > opla

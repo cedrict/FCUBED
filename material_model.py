@@ -1,11 +1,20 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 from constants_and_tools import *
 from inputs import *
-
-#------------------------------------------------------------------------------
 
 #@jit(nopython=True)
 def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
 
+    #--------------------------
     if experiment<0:
 
        if experiment==-1 or experiment==-2: # shear
@@ -23,9 +32,8 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
           yield_DP=0
           strain_level=0
 
-    elif experiment==1: # shear
-       #val=1e20
-       #return val,0,0,0
+    #--------------------------
+    elif experiment==1: # clast
 
        sr=max(1e-19,ee) # minimum strain rate
 
@@ -48,7 +56,7 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
 
        yield_DP=background_pressure*(1-pf_coefficient)*np.sin(phi_sw)+c_sw*np.cos(phi_sw)
 
-       eta_pl=yield_DP/2/ee
+       eta_pl=yield_DP/2/sr
        val=min(eta_pl,eta_dsl)
        if eta_pl<eta_dsl: 
           is_plastic=1 
@@ -60,9 +68,8 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
        val=max(val,1e18)
 
     else:
-
        exit("experiment unknown in material model")
-
 
     return val,is_plastic,yield_DP,strain_level
 
+###############################################################################

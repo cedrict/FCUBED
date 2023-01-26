@@ -1,8 +1,17 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 import numpy as np
 
-#------------------------------------------------------------------------------
+###############################################################################
 # basic physical constants
-#------------------------------------------------------------------------------
 
 Rgas=8.3145
 Tkelvin=273
@@ -19,12 +28,13 @@ ndofV=2  # number of velocity degrees of freedom per node
 ndofP=1  # number of pressure degrees of freedom 
 
 ###############################################################################
+# computes square root of second invariant of tensor
 
 def effective(xx,yy,xy):
     return np.sqrt(0.5*(xx**2+yy**2)+xy**2)
 
 ###############################################################################
-#quadrature parameters
+#quadrature parameters for 3x3 point quadrature rule
 
 nqperdim=3
 qcoords=[-np.sqrt(3./5.),0.,np.sqrt(3./5.)]

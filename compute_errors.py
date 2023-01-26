@@ -1,3 +1,13 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 import numpy as np
 from constants_and_tools import *
 from basis_functions import * 
@@ -51,4 +61,4 @@ def compute_errors(Lx,Ly,nel,hx,xV,yV,u,v,p,iconV,iconP,experiment):
 
    print("     errv,errp,vrms,hx-> ",errv,errp,vrms,hx)
 
-
+###############################################################################

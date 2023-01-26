@@ -1,12 +1,20 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+# the 9-node Q2 elt does not exist in vtk, but the 8-node one does, ie type=23. 
+
 from constants_and_tools import *
 from inputs import *
 from analytical_solutions import *
 
 def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,\
                            Pf,phi,K,plastic_strain_eff,H,u_darcy,v_darcy,output_folder,istep):
-
-    # the 9-node Q2 element does not exist in vtk, but the 8-node one 
-    # does, i.e. type=23. 
 
     filename=output_folder+'solution_{:04d}.vtu'.format(istep)
     vtufile=open(filename,"w")
@@ -69,11 +77,6 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
         vtufile.write("%10e %10e %10e \n" %(u[i]/cm*year,v[i]/cm*year,0.))
     vtufile.write("</DataArray>\n")
     #--
-    #vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity-v_simpleshear (cm/year)' Format='ascii'> \n")
-    #for i in range(0,NV):
-    #    vtufile.write("%10e %10e %10e \n" %((u[i]-(2*v0/Ly*yV[i]-v0))/cm*year ,v[i]/cm*year,0.))
-    #vtufile.write("</DataArray>\n")
-    #--
     vtufile.write("<DataArray type='Float32' Name='pressure' Format='ascii'> \n")
     for i in range(0,NV):
         vtufile.write("%10e \n" %q[i])
@@ -123,7 +126,6 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
            ui,vi,pi=analytical_solution(xV[i],yV[i],experiment)
            vtufile.write("%e\n" % pi) 
        vtufile.write("</DataArray>\n")
-
     #--
     vtufile.write("</PointData>\n")
     #####
@@ -131,8 +133,9 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
     #--
     vtufile.write("<DataArray type='Int32' Name='connectivity' Format='ascii'> \n")
     for iel in range (0,nel):
-        vtufile.write("%d %d %d %d %d %d %d %d\n" %(iconV[0,iel],iconV[1,iel],iconV[2,iel],iconV[3,iel],iconV[4,iel],\
-                                                    iconV[5,iel],iconV[6,iel],iconV[7,iel]))
+        vtufile.write("%d %d %d %d %d %d %d %d\n" %(iconV[0,iel],iconV[1,iel],iconV[2,iel],\
+                                                    iconV[3,iel],iconV[4,iel],iconV[5,iel],\
+                                                    iconV[6,iel],iconV[7,iel]))
     vtufile.write("</DataArray>\n")
     #--
     vtufile.write("<DataArray type='Int32' Name='offsets' Format='ascii'> \n")
@@ -152,3 +155,4 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
     vtufile.write("</VTKFile>\n")
     vtufile.close()
 
+###############################################################################

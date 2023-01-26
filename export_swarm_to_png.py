@@ -1,8 +1,17 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-def export_swarm_to_png(Lx,Ly,swarm_x,\
-                              swarm_y,\
+def export_swarm_to_png(Lx,Ly,swarm_x,swarm_y,\
                               swarm_eta,\
                               swarm_mat,\
                               swarm_ee,\
@@ -76,11 +85,7 @@ def export_swarm_to_png(Lx,Ly,swarm_x,\
     plt.yticks([], [])
     plt.title('material')
 
-    #plt.subplot(3,3,9)
-    #sc=plt.scatter(swarm_x,swarm_y,c=swarm_mat,s=10,cmap=cm)
-    #plt.colorbar(sc)
-    #plt.title('material')
-
     filename = output_folder+'img_swarm_{:04d}.png'.format(istep)
     plt.savefig(filename,bbox_inches='tight')
 
+###############################################################################

@@ -1,19 +1,31 @@
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 import numpy as np
 
 def analytical_solution(x,y,experiment):
 
-
+    #-----------------------------
     if experiment==-1: #pure shear
        vx=1-x
        vy=-0.5+y
        p=0
 
+    #-----------------------------
     if experiment==-2: #simple shear
        vx=2*(y-1/2)
        vy=0
        p=0
 
-    if experiment==-3:
+    #-----------------------------
+    if experiment==-3: #SolVi
        min_eta = 1.
        max_eta = 1.e3
        epsilon = 1.
@@ -39,6 +51,6 @@ def analytical_solution(x,y,experiment):
        vy=v.imag
        p=-2*epsilon*dphi.real
 
-
     return vx,vy,p
 
+###############################################################################

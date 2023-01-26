@@ -17,3 +17,4 @@ every_png=10
 every_vtu=10
 use_fluid=False
 p_ref=0
+linear=True

@@ -1,9 +1,19 @@
-#from inputs import *
+###############################################################################
+#
+#  FFFF  CCCC  U   U  BBB   EEEE  DDD      C.Thieulot
+#  F     C     U   U  B  B  E     D  D     F.Gueydan
+#  FFF   C     U   U  BBB   EEEE  D  D     A.Lemaitre
+#  F     C     U   U  B  B  E     D  D
+#  F     CCCC  UUUUU  BBB   EEEE  DDD
+#
+###############################################################################
+
 from constants_and_tools import *
 from analytical_solutions import *
 
 def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
 
+    #-----------------------------
     if experiment==-1: #pure shear
 
        for i in range(0, NV):
@@ -21,6 +31,7 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
               bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = v_ref/Lx
        #end for
 
+    #---------------------------------
     elif experiment==-2: #simple shear
 
        for i in range(0,NV):
@@ -40,7 +51,8 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
               bc_fix[i*ndofV+1] = True ; bc_val[i*ndofV+1] = 0   # vy
        #end for
 
-    elif experiment==-3: #solvi
+    #--------------------------
+    elif experiment==-3: #SolVi
 
        for i in range(0, NV):
            ui,vi,pi=analytical_solution(xV[i],yV[i],experiment)
@@ -57,7 +69,7 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
               bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = ui
               bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = vi
 
-
+    #----------------------------------------------
     elif experiment==1: # clast under simple shear
 
        from inputs_p1 import t1,t2,velofact
@@ -80,7 +92,6 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
        #end for
 
     else:
-
        exit("experiment unknown in define_bc")
 
 ###############################################################################
@@ -94,16 +105,10 @@ def define_bc_Pf(Lx,Ly,NPf,bc_fix_Pf,bc_val_Pf,x,y,experiment,p_ref):
            bc_fix_Pf[i]=True ; bc_val_Pf[i]=p_ref
     #end for
 
-
-
-
-
-
-
-#------------------------------------------------------------------------------
-# function which returns a scalar which then mutiplies v_ref applied on the boundaries
-# arguments are x,y coordinates, the time step integer, and the real time (in seconds).
-#------------------------------------------------------------------------------
+###############################################################################
+# function which returns a scalar which then mutiplies v_ref applied on the 
+# boundaries arguments are x,y coordinates, the time step integer, and the 
+# real time (in seconds).
 
 def bc_factor(t1,t2,velofact,total_time):
     if total_time<t1:
@@ -114,4 +119,4 @@ def bc_factor(t1,t2,velofact,total_time):
        factor=1
     return factor
 
-
+###############################################################################
