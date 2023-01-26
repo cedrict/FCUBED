@@ -1,0 +1,18 @@
+set terminal pdf enhanced font "Times,12pt"
+set grid
+set log xy
+set xlabel 'h'
+set key outside
+
+set ylabel '|e|_2'
+set output 'convergence.pdf'
+plot[][]\
+'errors' u 5:2 w lp ps .4 t 'vel',\
+'errors' u 5:3 w lp ps .4 t 'press',\
+x/20 w l t 'h^2'
+
+unset log y
+set ylabel 'v_{rms}'
+set output 'vrms.pdf'
+plot[][]\
+'errors' u 5:4 w lp ps .4 notitle
