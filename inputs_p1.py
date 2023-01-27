@@ -20,7 +20,7 @@ t2=200*year
 velofact=1
 
 niter=1
-nstep=1
+nstep=2
 CFL_nb=0.25
 nmarker_per_dim=7
 eta_ref=1e20
@@ -90,20 +90,20 @@ path='.'
 
 if not use_fluid:
    if velofact==1: #no velocity jump
-         output_folder=path+'/S-T='+str(background_temperature_C)+\
-                              '-P='+str(depth_km)+\
-                              '-pf='+str(pf_coefficient)+'/'
+         output_folder=path+'/S_T='+str(background_temperature_C)+\
+                              '_P='+str(depth_km)+\
+                              '_pf='+str(pf_coefficient)+'/'
    else:
-         output_folder=path+'/SV-T='+str(background_temperature_C)+\
-                               '-P='+str(depth_km)+\
-                              '-pf='+str(pf_coefficient)+'/'
+         output_folder=path+'/SV_T='+str(background_temperature_C)+\
+                               '_P='+str(depth_km)+\
+                              '_pf='+str(pf_coefficient)+'/'
 else:
    if velofact==1: #no velocity jump
-         output_folder=path+'/F-T='+str(background_temperature_C)+\
-                              '-P='+str(depth_km)+\
-                             '-pf='+str(pf_coefficient)+'/'
+         output_folder=path+'/F_T='+str(background_temperature_C)+\
+                              '_P='+str(depth_km)+\
+                             '_pf='+str(pf_coefficient)+'/'
    else:
-         output_folder=path+'/FV-T='+str(background_temperature_C)+\
-                               '-P='+str(depth_km)+\
-                              '-pf='+str(pf_coefficient)+'/'
+         output_folder=path+'/FV_T='+str(background_temperature_C)+\
+                               '_P='+str(depth_km)+\
+                              '_pf='+str(pf_coefficient)+'/'
 

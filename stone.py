@@ -72,7 +72,6 @@ hy=Ly/nely # size of element in y direction
 nmarker_per_element=nmarker_per_dim**2
 nmarker=nel*nmarker_per_element
 
-
 ###############################################################################
 
 print("experiment: ",experiment)
@@ -1080,7 +1079,13 @@ for istep in range(0,nstep):
     ###########################################################################
     start = time.time()
 
-    write_history(output_folder,total_time,istep,u,v,ee)
+    write_history(output_folder,total_time,istep,u,v,ee,\
+                  swarm_mat,\
+                  swarm_total_strain_eff,\
+                  swarm_plastic_strain_eff,\
+                  swarm_sw_level,\
+                  swarm_tau_eff,\
+                  swarm_plastic_strain_eff0)
 
     print("     write history: %.3f s" % (time.time() - start))
         
