@@ -8,9 +8,7 @@ set ylabel '|error|_2'
 set output 'convergence.pdf'
 plot[][]\
 'errors' u 5:2 w lp ps .4 t 'vel',\
-'errors' u 5:3 w lp ps .4 t 'press',\
-x/35 w l lt -1 t 'h^1',\
-x**.5 lt -1 dt 2 t 'h^{1/2}'
+'errors' u 5:3 w lp ps .4 t 'press'
 
 unset log y
 set ylabel 'v_{rms}'
