@@ -1063,6 +1063,7 @@ for istep in range(0,nstep):
                                  swarm_total_strain_eff,\
                                  swarm_tau_eff,\
                                  swarm_plastic_strain_eff,\
+                                 swarm_plastic_strain_eff0,\
                                  output_folder,istep)
 
     print("     export swarm to png: %.3f s" % (time.time() - start))

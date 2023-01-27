@@ -31,7 +31,7 @@ citecolor=black,
 filecolor=black,
 linkcolor=black,
 urlcolor=black}
-
+\newcommand{\python}{\color{darkgray} \sffamily }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,9 +44,12 @@ urlcolor=black}
 \maketitle
 \tableofcontents
 
-\textcite{grfr03}
-
 \newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+FCubed=FFF=Fluid Fracturing Flow 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Physics \& Equations}
 
@@ -61,17 +64,39 @@ urlcolor=black}
 \vec\nabla \cdot \vec\upnu &=& 0
 \end{eqnarray}
 
+The full stress tensor is given by
 \[
 \bm\sigma = -p {\bm 1} +  \bm \tau
 \]
+where ${\bm 1}$ is the unit matrix, $p$ is the pressure and 
+${\bm\tau}$ is the deviatoric stress tensor which can be 
+written as
 \[
 \bm\tau = 2 \eta \dot{\bm \varepsilon}(\vec\upnu)
 \]
+where $\eta$ is the viscosity, $\vec{\upnu}=(u,v)$ is the velocity vector, 
+and $\dot{\bm \varepsilon}(\vec\upnu)$ is the (deviatoric) 
+strain rate tensor.
 
+Putting it all together we obtain:
 \begin{eqnarray}
 -\vec\nabla p + \vec\nabla \cdot (2 \eta \dot{\bm \varepsilon}(\vec\upnu)) + \rho \vec{g} &=& \vec{0} \\
 \vec\nabla \cdot \vec\upnu &=& 0
 \end{eqnarray}
+
+In what follows we assume the buoyancy forces are negligible, i.e. 
+the term $\rho \vec{g}$ is neglected.
+
+
+%------------------------
+\subsubsection{Rheology}
+
+In the case of a dislocation creep rheology, we have (REF?)
+\[
+\dot\varepsilon = A \sigma^n \exp -\frac{Q }{nRT}
+\]
+In practice, this is expressed in the form of an effective
+viscosity that is a function of strainrate and temperature:
 
 \[
 \eta_{dsl} = \frac{1}{2} A^{-1/n} \dot\varepsilon_e^{1/n-1} 
@@ -86,12 +111,16 @@ where $\dot\varepsilon_e$ is the effective strain rate defined as
 )} 
 \]
 
-\todo[inline]{describe plasticity}
-
+We also wish to take plastic deformation
+and we therefore consider a Drucker-Prager yield criterion:
 \[
-\sigma_y = p \sin\phi + c \cos \phi
+\sigma_{yield} = p \sin\phi + c \cos \phi
 \]
-
+where $c$ is the cohesion and $\phi$ is the angle of friction.
+Likewise, we end up defining a so-called 'plastic effective viscosity':
+\[
+\eta_{pl} = \frac{\sigma_{yield}}{2 \dot\varepsilon_e }
+\]
 
 %-------------------------
 \subsubsection{Darcy flow}
@@ -101,64 +130,80 @@ the equations governing the evolution of the fluid pressure and
 fluid flow velocities are\footnote{I have slightly 
 changed the notations.}
 \begin{eqnarray}
-\varphi \beta \frac{\partial p_f}{\partial t} &=& -\vec\nabla \cdot \vec \upnu + H -\frac{\partial \varphi}{\partial t}\label{eq:128:a}\\
-\vec\upnu &=& -\frac{K}{\eta_f} \vec\nabla p_f \label{eq:128:b}
+\varphi \beta \frac{\partial p_f}{\partial t} &=& -\vec\nabla \cdot \vec{v} + H -\frac{\partial \varphi}{\partial t}\label{eq:128:a}\\
+\vec{v} &=& -\frac{K}{\eta_f} \vec\nabla p_f \label{eq:128:b}
 \end{eqnarray}
 \todo[inline]{is this the equation we want to use ? other ref ? what are other ppl using ?}
 
 where
 \begin{itemize}
 \item $p_f$ is the pore fluid pressure,
-\item $\vec\upnu$ is the fluid velocity vector,
-\item $\varphi$ is the porosity\footnote{\url{https://en.wikipedia.org/wiki/Porosity}} (-). 
-Wikipedia: ``Porosity or void fraction is a measure of the void (i.e. "empty") spaces 
+\item $\vec{v}$ is the fluid velocity vector,
+\item $\varphi$ is the porosity (-). 
+Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Porosity}}:
+``Porosity or void fraction is a measure of the void (i.e. "empty") spaces 
 in a material, and is a fraction of the volume of voids over the total volume, 
 between 0 and 1, or as a percentage between 0\% and 100\%''. 
 
 \item $\beta$ is the bulk compressibility\todo{typical values for rocks?} (\si{\per\pascal}),
 \todo[inline]{we find online multiple compressbilities in the context of rocks. Which are we to use?}
 
-\item $K$ is the permeability\footnote{\url{https://en.wikipedia.org/wiki/Permeability_(Earth_sciences)}} (\si{\square\meter})
-Wikipedia: ``
-Permeability is a property of porous materials that is an indication of the ability for fluids (gas or liquid) to flow through them. Fluids can more easily flow through a material with high permeability than one with low permeability. The permeability of a medium is related to the porosity, but also to the shapes of the pores in the medium and their level of connectedness. Fluid flows can also be influenced in different lithological settings by brittle deformation of rocks in fault zones; the mechanisms by which this occurs are the subject of fault zone hydrogeology. Permeability is also affected by the pressure inside a material.''
+\item $K$ is the permeability (\si{\square\meter}). 
+Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Permeability_(Earth_sciences)}}: 
+``Permeability is a property of porous materials that is an indication of the ability for fluids (gas or liquid) 
+to flow through them. Fluids can more easily flow through a material with high permeability than one with 
+low permeability. The permeability of a medium is related to the porosity, but also to the shapes of 
+the pores in the medium and their level of connectedness. Fluid flows can also be influenced in 
+different lithological settings by brittle deformation of rocks in fault zones; the mechanisms by 
+which this occurs are the subject of fault zone hydrogeology. Permeability is also affected by 
+the pressure inside a material.''
 
 In the code it is assumed to be given by \textcite{skre16,begu18}
 \[
-K = K_0 \left( \frac{\phi}{\phi_0}  \right)^3
+K = K_0 \left( \frac{\varphi}{\varphi_0}  \right)^3
 \]
-where $K_0$ is the permeability at a reference porosity $\phi_0$.
+where $K_0$ is the permeability at a reference porosity $\varphi_0$. See eq 10 of \textcite{wanu84}
 
-\item $\eta_f$ is the fluid viscosity (\si{\pascal\second}), typically water\footnote{\url{https://en.wikipedia.org/wiki/Water}}
+\item $\eta_f$ is the fluid viscosity (\si{\pascal\second}), typically 
+water\footnote{\url{https://en.wikipedia.org/wiki/Water}}
 \item $\rho_f$ is the water density (\si{\kg\per\cubic\meter}),
 \item $g$ is acceleration due to gravity (\si{\meter\per\square\second}),
-\item $\vec{e}$ is a unit vector oriented in the vertical direction,
 \item $H$ accounts for any fluid pressure sources or sinks (e.g., due to devolatilization reactions)
 \end{itemize}
 substituting \eqref{eq:128:b} into \eqref{eq:128:a} lead to a single parabolic equation for
 the excess fluid pressure as follows:
 \begin{equation}
 \varphi \beta  \frac{\partial p_f}{\partial t}
-=
-\vec\nabla \cdot \left( \frac{K}{\eta_f} \vec\nabla p_f  \right) + H
--\frac{\partial \phi}{\partial t}
+=\vec\nabla \cdot \left( \frac{K}{\eta_f} \vec\nabla p_f  \right) + H
+-\frac{\partial \varphi}{\partial t}
 \end{equation}
 Note that once the excess pressure is computed one can recover the fluid velocity via
-$\vec\upnu=-\frac{K}{\eta_f} \vec\nabla p_f$.
-Note that $H=0$ in experiments 1,2,3.
+$\vec{v}=-\frac{K}{\eta_f} \vec\nabla p_f$.
 
-\todo[inline]{}
+Also, assuming all coefficients to be constant in space (and 
+therefore neglecting the $\partial\varphi/\partial t$ term), we can write the 
+equation above as
+\[
+\frac{\partial p_f}{\partial t}
+= \underline{\frac{K}{\eta_f \varphi \beta}}_{\kappa}  \Delta  p_f  + H
+\]
+which is a diffusion equation.
+
+Following \textcite{wanu84}, we can define a characteristic time for the diffusion
+as 
+\[
+t_s = \frac{H^2}{\kappa}
+\]
 
 
-In what follows we assume the buoyancy forces are negligible, i.e. 
-the term $\rho \vec{g}$ is neglected.
 
-
+%-----------------------
 \subsubsection{Coupling}
 
 Remark1: 
 when using tectonic dt (which is ${\cal{O}}(10^5)$ year, 
-we find that $\frac{\partial \phi}{\partial t}
-\simeq \frac{\phi^n -\phi^{n-1}}{\delta t } \rightarrow 0$
+we find that $\frac{\partial \varphi}{\partial t}
+\simeq \frac{\varphi^n -\varphi^{n-1}}{\delta t } \rightarrow 0$
 so that the contribution of this term to the equation is 
 virtually inexistant.
 
@@ -177,21 +222,48 @@ $\partial p_f/\partial t \rightarrow 0$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Numerical aspects}
 
-2D
+The domain is a 2D Cartesian box of size $L_x \times L_z$
+with the lower left corner at $(x,y)=(0,0)$.
+The partial differential equations above are discretised and
+solved by means of the Finite Element method.
+In the case of the Stokes equation the $Q_2\times Q_1$ 
+pair is used \textcite{thba22} while $Q_2$
+elements are used for the Darcy equation.
 
-Cartesian domain
-
-Finite elements
-
-quadrilateral elements Q2Q1
 
 solver
+
+The code is based on the codes available in the educational Fieldstone project
+and is therefore not optimised for performance.
 
 %-------------------------------------------
 \subsection{FE formulation of the equations}
 
 
 \subsubsection{Stokes equations}
+
+\[
+\left(
+\begin{array}{cc}
+\K & \G \\
+\G^T & 0 
+\end{array}
+\right)
+\cdot
+\left(
+\begin{array}{c}
+\vec{\cal V} \\ 
+\vec{\cal P}
+\end{array}
+\right)
+=
+\left(
+\begin{array}{c}
+\vec{f} \\ 
+\vec{h}
+\end{array}
+\right)
+\]
 
 
 \subsubsection{Darcy equations}
@@ -213,6 +285,14 @@ Using a simple first order time discretisation yields
 \[
 ({\M} + {\K}_d \delta t) \cdot \vec{\cal P}_e^n = \M \cdot \vec{\cal P}_e^{n-1} + rhs \delta t
 \]
+
+
+%..................................
+\subsection{Rheological parameters}
+
+include here data for A,n,Q of different materials
+
+specify c,phi for plasticity
 
 
 
@@ -257,8 +337,11 @@ At the moment these are parameterised by $t_1$, $t_2$ and velofact.
 
 
 %..................................
-\subsubsection{Nonlinear residual}
+\subsubsection{Dealing with nonlinearities}
 
+Picard iterations
+
+Nonlinear residual
 
 
 %---------------------------------------------------
@@ -273,27 +356,111 @@ projection/averaging , advection, periodic pc, painting
 
 ...
 
+%--------------------------
+\subsection{Code parameters}
+
+\begin{itemize}
+\item {\python Lx,Ly}: domain size
+\item {\python nelx,nely}: number of elements in x,y direction 
+\item {\python nstep}:
+\item {\python niter}:
+\item {\python tol}:
+\item {\python every\_vtu}:
+\item {\python every\_png}:
+\item etc ...
+\end{itemize}
+
+
+
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Benchmarks}
 
+%-----------------
 \subsection{Pure shear}
 
+The domain is a Cartesian box of size $2\times 1$.
+Pure shear kinematical boundary conditions are prescribed:
+$u=v_{ref}/L_y$ on the left boundary, 
+$u=-v_{ref}/L_y$ on the right boundary, 
+$v=-v_{ref}/L_x$ on the bottom boundary, 
+$v=v_{ref}/L_x$ on the top boundary.
+This is such that one can change either $L_x$ or $L_y$
+at will and the in/out-fluxes balance each other out. 
+
+The analytical solution is then
+\[
+u(x,y)=1-x
+\qquad
+v(x,y)=-0.5+y
+\qquad
+p(x,y)=0
+\]
+
+As such the analytical solution can be represented exactly
+with the basis functions of the code.
+We therefore recover errors that are machine precision:
+
+
+%-----------------
 \subsection{Simple shear}
+
+The domain is a Cartesian box of size $2\times 1$.
+
+
+The analytical solution is then
+\[
+u(x,y)=2(y-1/2)
+\qquad
+v(x,y)=0
+\qquad
+p(x,y)=0
+\]
+
+Here too the analytical solution can be represented exactly
+with the basis functions of the code
+and we therefore recover errors that are machine precision:
+
+
+
 
 %-----------------
 \subsection{SolVi}
+
+SolVi is another very common benchmark carried out in the computational 
+geodynamics literature.
+
+This inclusion benchmark solves a problem with a discontinuous viscosity, 
+which is chosen in such a way that the discontinuity is a circle.                
+Given the regular nature of the used by a majority of codes, 
+this ensures that the discontinuity in the viscosity never aligns to cell boundaries.
+This in turns leads to almost discontinuous pressures along the interface which are difficult 
+to represent accurately.
+
+Schmid \& Podlachikov (2003) \cite{scpo03}
+derived a simple analytic solution for the pressure and velocity fields for such a circular
+inclusion under simple shear.
+
+One important observation with this benchmark is the fact that the velocity is not zero even far 
+away from the inclusion, so that the analytical solution must be imposed on the sides.
+Also, because of symmetry, it is often run on the top $1\times 1$ quadrant $x>0$, $y>0$ with 
+free slip imposed on the left and bottom boundaries.
+
+Results for this benchmarks are to be found in \textcite{krhb12} or \textcite{gemd13} 
+for example. 
 
 \begin{center}
 \includegraphics[width=8cm]{./results/benchmark_solvi/vel}
 \includegraphics[width=8cm]{./results/benchmark_solvi/vel_analytical}\\
 \includegraphics[width=8cm]{./results/benchmark_solvi/press}
-\includegraphics[width=8cm]{./results/benchmark_solvi/press_analytical}
+\includegraphics[width=8cm]{./results/benchmark_solvi/press_analytical}\\
+{\it Top row: velocity, bottom row: pressure. Left column: computed field, 
+right column: analytical solution.}
 \end{center}
 
 \begin{center}
-\includegraphics[width=8cm]{./results/benchmark_solvi/convergence.pdf}
-\includegraphics[width=8cm]{./results/benchmark_solvi/vrms.pdf}
+\includegraphics[width=8.7cm]{./results/benchmark_solvi/convergence.pdf}
+\includegraphics[width=8.7cm]{./results/benchmark_solvi/vrms.pdf}
 \end{center}
 
 
@@ -304,7 +471,7 @@ projection/averaging , advection, periodic pc, painting
 
 \subsection{darcy? simpson ?}
 
-\subsection{gaussian diffusion in time}
+\subsection{gaussian pulse diffusion in time}
 
 
 

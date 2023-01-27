@@ -1,32 +1,38 @@
-FCubed=FFF=Fluid Fracturing Flow 
-
 
 X- create outputfolder name
-- nonlinear residual
 X- source term
 - mu=tau_e/(plith-Pf_darcy)  in vtu
-- forumlation Darcy syimpson vs rest monde
 - cfl de Darcy? 
-- put back time in darcy
 X- compute velocity darcy!
-- jit?
-- export solution Q1 vtu
-- make pvd files
 X- change py files pdf
 X- export source terms in vtk/png
 X- log file 
 %- create sed script 
 - formats ecriture
-- measure vtheta rotation clast?
-- separate sr vis et sr plast - see stone 121
 X- ar figs swarm
 X- regarder ee =0 nan ds material model
+
 - factor 1/2 in eta disl ?
 
-create hist.txt. (write_history)
+Cedric:
+- measure vtheta rotation clast?
+- separate sr vis et sr plast - see stone 121
+- make pvd files
+- jit?
+- export solution Q1 vtu
+- put back time in darcy
+- nonlinear residual
+
+Antoine:
+- formulation Darcy Simpson vs rest monde
+- valeurs des params K, phi, ds la literature ... 
+
+
+
+#create hist.txt. (write_history)
 #- istep time + columns
-- measure % markers in clast with ee > 2 background sr
-- measure % markers in clast with plastic strain eff > 1 
+#- measure % markers in clast with ee > 2 background sr
+#- measure % markers in clast with plastic strain eff > 1 
 
 
 
