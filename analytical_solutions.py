@@ -51,6 +51,15 @@ def analytical_solution(x,y,experiment):
        vy=v.imag
        p=-2*epsilon*dphi.real
 
+    #-----------------------------
+    if experiment==-4: #SolKz
+
+       import solkz
+       vx,vy,p=solkz.SolKzSolution(x,y)
+
+    else:
+       exit("experiment unknown in analytical_solution")
+
     return vx,vy,p
 
 ###############################################################################

@@ -188,7 +188,7 @@ therefore neglecting the $\partial\varphi/\partial t$ term), we can write the
 equation above as
 \[
 \frac{\partial p_f}{\partial t}
-= \underline{\frac{K}{\eta_f \varphi \beta}}_{\kappa}  \Delta  p_f  + H
+= \underbrace{\frac{K}{\eta_f \varphi \beta}}_{\kappa}  \Delta  p_f  + H
 \]
 which is a diffusion equation.
 
@@ -250,6 +250,7 @@ and is therefore not optimised for performance.
 \subsection{FE formulation of the equations}
 
 
+%------------------------------
 \subsubsection{Stokes equations}
 
 Following a standard approach, the discretised Stokes equations yield
@@ -276,12 +277,12 @@ the following linear system
 \end{array}
 \right)
 \]
-where $\vec{\cal V}$ is the vector containing all velocity degrees of freedom
-and $\vec{\cal P}$ is the vector containing all pressure degrees of freedom.
+where $\vec{\cal V}$ is the vector containing all velocity degrees of freedom (size {\python NfemV}={\python NV}*{\python ndofV})
+and $\vec{\cal P}$ is the vector containing all pressure degrees of freedom (size {\python NfemP}={\python NP}*{\python ndofP}).
 
 
 
-
+%------------------------------
 \subsubsection{Darcy equations}
 Applying standard FE methodology to what is essentially a diffusion equation, we arrive at:
 \[
@@ -341,7 +342,11 @@ A \frac{1}{2} \left(\cos (\pi \frac{\sqrt{(x_{im}-x_{is})^2+(y_{im}-y_{is})^2}}{
 where $w$ is the radius of the seed, and $A$ its maximum amplitude
 
 
-\todo[inline]{include image examples}
+\begin{center}
+\includegraphics[width=8cm]{images/seeds1}
+\includegraphics[width=8cm]{images/seeds2}\\
+Example of about 20 seeds placed in the domain
+\end{center}
 
 
 %..................................
@@ -398,6 +403,7 @@ Each marker carries a variety of fields:
 \item {\python swarm\_tau\_eff}
 \item {\python swarm\_iel}: element containing the marker
 \item {\python swarm\_eta}: (effective) viscosity of the marker
+\item {\python swarm\_rho}: density of the marker
 \item {\python swarm\_p\_dyn}
 \item {\python swarm\_yield}
 \item {\python swarm\_is\_plastic}
@@ -409,14 +415,17 @@ full stress tensor
 \item {\python swarm\_sw\_level}: level of strain weaking betw. 0 and 1
 \end{itemize}
 
-Before the FEM can be built we 
+Before the FEM can be built we need to project density and viscosity onto the 
+mesh so that these quantities can be used in the matrix and right hand side.
+We have opted here for the very simple elemental approach. All markers inside
+an element are taken into account and their harmonic average is used for the 
+viscosity while the arithmetic average is used for the density.
+ 
+
+ advection, periodic pc, painting
 
 
-projection/averaging , advection, periodic pc, painting
 
-
-
-...
 
 %--------------------------
 \subsection{Code parameters}

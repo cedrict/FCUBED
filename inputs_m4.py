@@ -1,12 +1,12 @@
 
-nelx=32
-nely=int(nelx/2)
-Lx=2
+nelx=128
+nely=nelx
+Lx=1
 Ly=1
 niter=10
 nstep=1
 CFL_nb=0
-output_folder='./simple_shear/' 
+output_folder='./solkz/' 
 nmarker_per_dim=5
 background_temperature=0
 eta_ref=1

@@ -11,7 +11,7 @@
 
 import numpy as np
 
-def write_history(output_folder,total_time,istep,u,v,ee,\
+def write_history(experiment,output_folder,total_time,istep,u,v,ee,\
                   swarm_mat,\
                   swarm_total_strain_eff,\
                   swarm_plastic_strain_eff,\
@@ -35,56 +35,62 @@ def write_history(output_folder,total_time,istep,u,v,ee,\
     else:
        histfile=open(output_folder+'hist.ascii',"a")
 
-    #------------------------------------------------------
-    # faulting with total_strain_eff  
 
-    count_inclusion = 0
-    count_matrice = 0
+    if experiment>0:
+       #------------------------------------------------------
+       # faulting with total_strain_eff  
+
+       count_inclusion = 0
+       count_matrice = 0
     
-    for i in range (len(swarm_mat)):
-        if swarm_mat[i] == 2:
-            count_inclusion+=1
-            inclusion = np.where(swarm_mat == 2)
-           
-        else :
-            count_matrice+=1
-            matrice = np.where(swarm_mat == 1)
+       for i in range (len(swarm_mat)):
+           if swarm_mat[i] == 2:
+               count_inclusion+=1
+               inclusion = np.where(swarm_mat == 2)
+           else :
+               count_matrice+=1
+               matrice = np.where(swarm_mat == 1)
             
-    tau_incl = np.mean(swarm_tau_eff[inclusion])
-    tau_matr = np.mean(swarm_tau_eff[matrice])
-    tau_bulk = np.mean(swarm_tau_eff)
+       tau_incl = np.mean(swarm_tau_eff[inclusion])
+       tau_matr = np.mean(swarm_tau_eff[matrice])
+       tau_bulk = np.mean(swarm_tau_eff)
 
-    ratio_tau = tau_incl/tau_matr
+       ratio_tau = tau_incl/tau_matr
 
-    #------------------------------------------------------
-    # faulting with total_strain_eff 
+       #------------------------------------------------------
+       # faulting with total_strain_eff 
 
-    fault_TS = 0
-    nofault_TS = 0
+       fault_TS = 0
+       nofault_TS = 0
     
-    for i in range (len(swarm_total_strain_eff)):
-        if swarm_mat[i] == 2 and swarm_total_strain_eff[i] > 0.9 :
-            fault_TS+=1
+       for i in range (len(swarm_total_strain_eff)):
+           if swarm_mat[i] == 2 and swarm_total_strain_eff[i] > 0.9 :
+               fault_TS+=1
            
-        if swarm_mat[i] == 2 and swarm_total_strain_eff[i] <= 0.9 :
-            nofault_TS+=1
+           if swarm_mat[i] == 2 and swarm_total_strain_eff[i] <= 0.9 :
+               nofault_TS+=1
             
-    faulting_TS = (fault_TS/(fault_TS+nofault_TS))*100
+       faulting_TS = (fault_TS/(fault_TS+nofault_TS))*100
 
-    #------------------------------------------------------
-    # faulting with plastic_strain_eff  
+       #------------------------------------------------------
+       # faulting with plastic_strain_eff  
 
-    fault_PS = 0
-    nofault_PS = 0
+       fault_PS = 0
+       nofault_PS = 0
     
-    for i in range (len(swarm_plastic_strain_eff)):
-        if swarm_mat[i] == 2 and swarm_plastic_strain_eff[i] >= 1 :
-            fault_PS+=1
+       for i in range (len(swarm_plastic_strain_eff)):
+           if swarm_mat[i] == 2 and swarm_plastic_strain_eff[i] >= 1 :
+               fault_PS+=1
            
-        if swarm_mat[i] == 2 and swarm_plastic_strain_eff[i] < 1 :
-            nofault_PS+=1
+           if swarm_mat[i] == 2 and swarm_plastic_strain_eff[i] < 1 :
+               nofault_PS+=1
             
-    faulting_PS = (fault_PS/(fault_PS+nofault_PS))*100
+       faulting_PS = (fault_PS/(fault_PS+nofault_PS))*100
+
+    else:
+       ratio_tau=0
+       faulting_TS=0
+       faulting_PS=0
 
     #------------------------------------------------------
 

@@ -1,5 +1,5 @@
 
-nelx=80
+nelx=128
 nely=nelx
 Lx=1
 Ly=1

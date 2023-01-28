@@ -16,6 +16,7 @@ from basis_functions import *
 from constants_and_tools import *
 from inputs import *
 from material_model import *
+from gravity_model import *
 from define_bc import *
 from make_clast import *
 from write_history import *
@@ -265,6 +266,7 @@ swarm_tauyy=np.zeros(nmarker,dtype=np.float64)              # dev stress xy
 swarm_tau_eff=np.zeros(nmarker,dtype=np.float64)            # effective dev stress
 swarm_iel=np.zeros(nmarker,dtype=np.int32)                  # element identity
 swarm_eta=np.zeros(nmarker,dtype=np.float64)                # viscosity
+swarm_rho=np.zeros(nmarker,dtype=np.float64)                # density
 swarm_p_dyn=np.zeros(nmarker,dtype=np.float64)              # pressure 
 swarm_yield=np.zeros(nmarker,dtype=np.float64)              # yield value
 swarm_is_plastic=np.zeros(nmarker,dtype=np.int32)           # plastic deformation active 
@@ -406,6 +408,7 @@ for istep in range(0,nstep):
         start = time.time()
 
         eta_elemental=np.zeros(nel,dtype=np.float64)
+        rho_elemental=np.zeros(nel,dtype=np.float64)
         plastic_strain_eff_elemental=np.zeros(nel,dtype=np.float64)
 
         for im in range(0,nmarker):
@@ -415,11 +418,11 @@ for istep in range(0,nstep):
             swarm_eyy[im]=sum(NNNV[0:mV]*eyy[iconV[0:mV,iel]])
             swarm_exy[im]=sum(NNNV[0:mV]*exy[iconV[0:mV,iel]])
             swarm_ee[im]=np.sqrt(0.5*(swarm_exx[im]**2+swarm_eyy[im]**2+2*swarm_exy[im]**2) ) 
-            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],dum=viscosity(swarm_x[im],swarm_y[im],\
-                                                                   swarm_ee[im],background_temperature,\
-                                                                   swarm_mat[im],iter,swarm_plastic_strain_eff[im])
-
+            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],dum,swarm_rho[im]=material_model(swarm_x[im],\
+                                    swarm_y[im],swarm_ee[im],background_temperature,\
+                                    swarm_mat[im],iter,swarm_plastic_strain_eff[im])
             plastic_strain_eff_elemental[iel]+=swarm_plastic_strain_eff[im]               
+            rho_elemental[iel]+=swarm_rho[im]               
             if abs(avrg)==1 : # arithmetic
                eta_elemental[iel]     +=swarm_eta[im]
             if abs(avrg)==2: # geometric
@@ -428,6 +431,7 @@ for istep in range(0,nstep):
                eta_elemental[iel]     +=1/swarm_eta[im]
         #end for
         plastic_strain_eff_elemental[:]/=nmarker_in_element[:]
+        rho_elemental[:]/=nmarker_in_element[:]
         if abs(avrg)==1:
            eta_elemental[:]/=nmarker_in_element[:]
         if abs(avrg)==2:
@@ -437,6 +441,7 @@ for istep in range(0,nstep):
 
         print("          -> nmarker_in_elt(m,M) %.5e %.5e " %(np.min(nmarker_in_element),np.max(nmarker_in_element)))
         print("          -> eta_elemental (m,M) %.5e %.5e " %(np.min(eta_elemental),np.max(eta_elemental)))
+        print("          -> rho_elemental (m,M) %.5e %.5e " %(np.min(rho_elemental),np.max(rho_elemental)))
         print("          -> plastic_strain_eff_elemental (m,M) %.5e %.5e " %(np.min(plastic_strain_eff_elemental),np.max(plastic_strain_eff_elemental)))
 
         print("     markers onto grid: %.3f s" % (time.time() - start))
@@ -521,9 +526,10 @@ for istep in range(0,nstep):
                     K_el+=b_mat.T.dot(c_mat.dot(b_mat))*eta_elemental[iel]*weightq*jcob
 
                     # compute elemental rhs vector
-                    #for i in range(0,mV):
-                    #    f_el[ndofV*i  ]+=NNNV[i]*jcob*weightq*gx*density(xq,yq)
-                    #    f_el[ndofV*i+1]+=NNNV[i]*jcob*weightq*gy*density(xq,yq)
+                    gxq,gyq=gravity_model(xq,yq)
+                    for i in range(0,mV):
+                        f_el[ndofV*i  ]+=NNNV[i]*jcob*weightq*gxq*rho_elemental[iel]
+                        f_el[ndofV*i+1]+=NNNV[i]*jcob*weightq*gyq*rho_elemental[iel]
 
                     for i in range(0,mP):
                         N_mat[0,i]=NNNP[i]
@@ -799,8 +805,8 @@ for istep in range(0,nstep):
            swarm_exy[im]=exym
            #assign effective strain rate and viscosity
            swarm_ee[im]=effective(swarm_exx[im],swarm_eyy[im],swarm_exy[im]) 
-           swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],swarm_sw_level[im]=\
-           viscosity(swarm_x[im],swarm_y[im],swarm_ee[im],
+           swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],swarm_sw_level[im],swarm_rho[im]=\
+           material_model(swarm_x[im],swarm_y[im],swarm_ee[im],
                      background_temperature,swarm_mat[im],iter,swarm_plastic_strain_eff[im])
            #assign dev stress values
            swarm_tauxx[im]=2*exxm*swarm_eta[im]
@@ -983,7 +989,7 @@ for istep in range(0,nstep):
     start = time.time()
 
     if istep%every_vtu==0:
-       export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,\
+       export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,rho_elemental,\
                               exx,eyy,exy,ee,Pf,phi,K,plastic_strain_eff_elemental,\
                               H,u_darcy,v_darcy,output_folder,istep)
 
@@ -1012,20 +1018,15 @@ for istep in range(0,nstep):
                                 swarm_exx,swarm_eyy,swarm_exy,swarm_ee,\
                                 swarm_sw_level,\
                                 swarm_is_plastic,\
-                                swarm_tauxx,\
-                                swarm_tauyy,\
-                                swarm_tauxy,\
+                                swarm_tauxx,swarm_tauyy,swarm_tauxy,\
                                 swarm_tau_eff,\
                                 swarm_tau_angle,\
                                 swarm_sigma_angle,\
-                                swarm_sigma1,\
-                                swarm_sigma2,\
+                                swarm_sigma1,swarm_sigma2,\
                                 swarm_eta,\
                                 swarm_p_dyn,\
-                                swarm_u,\
-                                swarm_v,\
-                                swarm_x,\
-                                swarm_y,\
+                                swarm_u,swarm_v,\
+                                swarm_x,swarm_y,\
                                 output_folder,istep)
 
     print("     export swarm to vtu: %.3f s" % (time.time() - start))
@@ -1079,7 +1080,7 @@ for istep in range(0,nstep):
     ###########################################################################
     start = time.time()
 
-    write_history(output_folder,total_time,istep,u,v,ee,\
+    write_history(experiment,output_folder,total_time,istep,u,v,ee,\
                   swarm_mat,\
                   swarm_total_strain_eff,\
                   swarm_plastic_strain_eff,\

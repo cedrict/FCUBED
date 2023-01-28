@@ -4,7 +4,7 @@
 # make sure there is no trailing space!
 #truc="''"
 
-rm -rf benchmark_solvi 
+rm -rf benchmark_solkz 
 
 ######################################################
 echo *****SolVi benchmark: running over nelx***** 
@@ -12,16 +12,16 @@ rm -f errors
 
 for n in 8 9 10 11 12 13 14 16 20 24 28 32 36 40 44 48 56 64 80 90 100 110 128 ; do
    echo nelx=$n 
-   sed -i $truc "s/nelx=.*/nelx="$n"/" inputs_m3.py
+   sed -i $truc "s/nelx=.*/nelx="$n"/" inputs_m4.py
    python3 stone.py > opla
    grep errv opla >> errors
-   mv log.txt solvi
-   mv opla* solvi
-   rm -rf solvi_$n
-   mv solvi solvi_$n
+   mv log.txt solkz
+   mv opla* solkz
+   rm -rf solkz_$n
+   mv solkz solkz_$n
 done
-mkdir benchmark_solvi
-mv errors benchmark_solvi
-mv solvi_* benchmark_solvi
+mkdir benchmark_solkz
+mv errors benchmark_solkz
+mv solkz_* benchmark_solkz
 
 

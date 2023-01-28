@@ -12,16 +12,17 @@ from constants_and_tools import *
 from inputs import *
 
 #@jit(nopython=True)
-def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
+def material_model(x,y,ee,T,imat,iter,plastic_strain_marker):
 
-    #--------------------------
-    if experiment<0:
+    #---------------------------
+    if experiment<0: #benchmarks
 
        if experiment==-1 or experiment==-2: # shear
           val=1
           is_plastic=False
           yield_DP=0
           strain_level=0
+          rho=0
 
        if experiment==-3: #solvi
           if (np.sqrt(x*x+y*y) < 0.2):
@@ -31,6 +32,14 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
           is_plastic=False
           yield_DP=0
           strain_level=0
+          rho=0
+
+       if experiment==-4: #solkz
+          val=np.exp(13.8155*y)
+          is_plastic=False
+          yield_DP=0
+          strain_level=0
+          rho=np.sin(2*y)*np.cos(3*np.pi*x)
 
     #--------------------------
     elif experiment==1: # clast
@@ -67,9 +76,11 @@ def viscosity(x,y,ee,T,imat,iter,plastic_strain_marker):
        val=min(val,1e26)
        val=max(val,1e18)
 
+       rho=0
+
     else:
        exit("experiment unknown in material model")
 
-    return val,is_plastic,yield_DP,strain_level
+    return val,is_plastic,yield_DP,strain_level,rho
 
 ###############################################################################

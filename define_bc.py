@@ -69,6 +69,19 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
               bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = ui
               bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = vi
 
+    #--------------------------
+    elif experiment==-4: #SolKz
+
+       for i in range(0, NV):
+           if xV[i]<eps:
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = 0
+           if xV[i]>(Lx-eps):
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = 0
+           if yV[i]<eps:
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = 0
+           if yV[i]>(Ly-eps):
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = 0
+
     #----------------------------------------------
     elif experiment==1: # clast under simple shear
 

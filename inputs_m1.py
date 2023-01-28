@@ -1,7 +1,7 @@
 
 Lx=2
 Ly=1
-nelx=24
+nelx=32
 nely=int(nelx/2)
 niter=10
 nstep=1

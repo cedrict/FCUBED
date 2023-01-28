@@ -13,7 +13,7 @@ from constants_and_tools import *
 from inputs import *
 from analytical_solutions import *
 
-def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee,\
+def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,rho_elemental,exx,eyy,exy,ee,\
                            Pf,phi,K,plastic_strain_eff,H,u_darcy,v_darcy,output_folder,istep):
 
     filename=output_folder+'solution_{:04d}.vtu'.format(istep)
@@ -35,6 +35,12 @@ def export_solution_to_vtu(NV,nel,xV,yV,iconV,u,v,q,eta_elemental,exx,eyy,exy,ee
     for iel in range (0,nel):
         vtufile.write("%10e\n" % eta_elemental[iel]) 
     vtufile.write("</DataArray>\n")
+    #--
+    vtufile.write("<DataArray type='Float32' Name='density' Format='ascii'> \n")
+    for iel in range (0,nel):
+        vtufile.write("%10e\n" % rho_elemental[iel]) 
+    vtufile.write("</DataArray>\n")
+
     #--
     if use_fluid:
        vtufile.write("<DataArray type='Float32' NumberOfComponents='3' Name='velocity Darcy' Format='ascii'> \n")

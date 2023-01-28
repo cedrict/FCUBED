@@ -3,7 +3,7 @@ from constants_and_tools import *
 #geometry
 Lx=2e-2 # horizontal extent of the domain in m 
 Ly=1e-2 # vertical extent of the domain in m
-nelx = 30             #number of elements in horizontal direction
+nelx = 100             #number of elements in horizontal direction
 nely = int(nelx*Ly/Lx) #number of elements in vertical direction
 
 #clast
@@ -20,7 +20,7 @@ t2=200*year
 velofact=1
 
 niter=1
-nstep=2
+nstep=1
 CFL_nb=0.25
 nmarker_per_dim=7
 eta_ref=1e20
