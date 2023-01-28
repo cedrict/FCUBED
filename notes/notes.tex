@@ -21,8 +21,6 @@
 \newcommand{\LLL}{{\mathbb{L}}}
 \newcommand{\SSS}{{\mathbb{S}}}
 \newcommand{\HH}{{\mathbb{H}}}
-\usepackage[maxnames=6]{biblatex}
-\addbibresource{biblio.bib}
 \newcommand{\bN}{{\mathcal{N}}}
 \usepackage{hyperref}
 \hypersetup{
@@ -32,6 +30,11 @@ filecolor=black,
 linkcolor=black,
 urlcolor=black}
 \newcommand{\python}{\color{darkgray} \sffamily }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[maxnames=6]{biblatex}
+\addbibresource{biblio.bib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,6 +200,7 @@ t_s = \frac{H^2}{\kappa}
 
 
 
+
 %-----------------------
 \subsubsection{Coupling}
 
@@ -216,6 +220,12 @@ directly solve the steady state Darcy equation, i.e.
 $\partial p_f/\partial t \rightarrow 0$. 
 
 
+Remark: I have serious doubts about our approach here 
+concerning the coupling. Reading the short chapter in 
+\textcite{tack10} on this topic there seems to be quite some 
+work done in the 90s and I suspect we should first 
+consider this literature rather than blindly couple 
+Stokes and Darcy. 
 
 
 \newpage
@@ -230,10 +240,10 @@ In the case of the Stokes equation the $Q_2\times Q_1$
 pair is used \textcite{thba22} while $Q_2$
 elements are used for the Darcy equation.
 
+Both finite element matrices are assembled using {\python lil\_matrix},
+converted to CSR format and then passed to a direct solver.
 
-solver
-
-The code is based on the codes available in the educational Fieldstone project
+Node that the code is based on the codes available in the educational Fieldstone project
 and is therefore not optimised for performance.
 
 %-------------------------------------------
@@ -242,6 +252,8 @@ and is therefore not optimised for performance.
 
 \subsubsection{Stokes equations}
 
+Following a standard approach, the discretised Stokes equations yield
+the following linear system
 \[
 \left(
 \begin{array}{cc}
@@ -264,6 +276,10 @@ and is therefore not optimised for performance.
 \end{array}
 \right)
 \]
+where $\vec{\cal V}$ is the vector containing all velocity degrees of freedom
+and $\vec{\cal P}$ is the vector containing all pressure degrees of freedom.
+
+
 
 
 \subsubsection{Darcy equations}
@@ -302,13 +318,19 @@ specify c,phi for plasticity
 %..................................
 \subsubsection{computing time step}
 
-CFL dt
+The time step $\delta t$ is limited by a CFL condition and implemented
+as follows:
+\[
+\delta t = C \frac{h}{\max |\vec\upnu|_\Omega}
+\]
+where $h$ is the element size and $C\in[0,1[$.
 
-%..................................
+%....................................
 \subsubsection{Generating weak seeds}
 
 Poisson disc distribution
 seeds generated in square.
+
 Notes that seeds which are kept are those inside circle or size ainclusion-w
 
 For each marker $im$ we test whether it is at a distance of $w$ or less of 
@@ -350,6 +372,46 @@ Nonlinear residual
 
 \subsubsection{Marker in cell technique}
 
+The code implements the marker in cell technique to track 
+materials/fluids. The ensemble of markers is called a 
+swarm\footnote{\url{https://en.wikipedia.org/wiki/Swarm_behaviour}}.
+At the beginning of the simulation {\python marker\_per\_dim}$^2$
+markers are placed regularly inside each element.
+In total there are then {\python nmarker}={\python nel}*{\python marker\_per\_dim}$^2$
+markers.
+ 
+Each marker carries a variety of fields:
+\begin{itemize}
+\item {\python swarm\_x},{\python swarm\_y}:
+\item {\python swarm\_mat}:  type of material 
+\item {\python swarm\_paint}     paint to show the virtual deformation of the grid
+\item {\python swarm\_r},{\python swarm\_s}         reduced coordinates s
+\item {\python swarm\_u},{\python swarm\_v}         velocity y
+\item {\python swarm\_exx},{\python swarm\_exy},{\python swarm\_eyy}  strain rate xy
+\item {\python swarm\_ee}:        effective strain rate
+\item {\python swarm\_total\_strainxx}, {\python swarm\_total\_strainxy}, {\python swarm\_total\_strainyy}
+\item {\python swarm\_total\_strain\_eff}
+\item {\python swarm\_plastic\_strainxx}, {\python swarm\_plastic\_strainxy}, {\python swarm\_plastic\_strainyy}
+\item {\python swarm\_plastic\_strain\_eff}
+\item {\python swarm\_plastic\_strain\_eff0}
+\item {\python swarm\_tauxx}, {\python swarm\_tauxy}, {\python swarm\_tauyy}:
+\item {\python swarm\_tau\_eff}
+\item {\python swarm\_iel}: element containing the marker
+\item {\python swarm\_eta}: (effective) viscosity of the marker
+\item {\python swarm\_p\_dyn}
+\item {\python swarm\_yield}
+\item {\python swarm\_is\_plastic}
+\item {\python swarm\_tau\_angle}
+\item {\python swarm\_sigmaxx}, {\python swarm\_sigmaxy}, {\python swarm\_sigmayy}: components of the 
+full stress tensor
+\item {\python swarm\_sigma\_angle}: principal angle full stress
+\item {\python swarm\_sigma1}, {\python swarm\_sigma2}: principal stresses
+\item {\python swarm\_sw\_level}: level of strain weaking betw. 0 and 1
+\end{itemize}
+
+Before the FEM can be built we 
+
+
 projection/averaging , advection, periodic pc, painting
 
 
@@ -359,14 +421,22 @@ projection/averaging , advection, periodic pc, painting
 %--------------------------
 \subsection{Code parameters}
 
+Global parameters common to all experiments only:
 \begin{itemize}
 \item {\python Lx,Ly}: domain size
 \item {\python nelx,nely}: number of elements in x,y direction 
 \item {\python nstep}:
 \item {\python niter}:
 \item {\python tol}:
+\item {\python CFL\_nb}:
+\item {\python marker\_per\_dim}:
+\item {\python eta\_ref}:
+\item {\python tfinal}:
+\item {\python output\_folder}:
+\item {\python linear}: boolean flag to indicate whether the rheology is linear or not.
 \item {\python every\_vtu}:
 \item {\python every\_png}:
+\item {\python use\_fluid}:
 \item etc ...
 \end{itemize}
 
@@ -397,16 +467,27 @@ v(x,y)=-0.5+y
 p(x,y)=0
 \]
 
+\begin{center}
+\includegraphics[width=8cm]{./results/benchmark_pure_shear/vel}
+\includegraphics[width=8cm]{./results/benchmark_pure_shear/press}
+\end{center}
+
 As such the analytical solution can be represented exactly
 with the basis functions of the code.
 We therefore recover errors that are machine precision:
+
+\begin{center}
+\includegraphics[width=8.7cm]{./results/benchmark_pure_shear/convergence.pdf}
+\includegraphics[width=8.7cm]{./results/benchmark_pure_shear/vrms.pdf}
+\end{center}
 
 
 %-----------------
 \subsection{Simple shear}
 
 The domain is a Cartesian box of size $2\times 1$.
-
+Boundary conditions are as follows:
+Left and right sides: $v=0$; top: $u=1$, bottom: $u=-1$.
 
 The analytical solution is then
 \[
@@ -417,10 +498,19 @@ v(x,y)=0
 p(x,y)=0
 \]
 
+\begin{center}
+\includegraphics[width=8cm]{./results/benchmark_simple_shear/vel}
+\includegraphics[width=8cm]{./results/benchmark_simple_shear/press}
+\end{center}
+
 Here too the analytical solution can be represented exactly
 with the basis functions of the code
 and we therefore recover errors that are machine precision:
 
+\begin{center}
+\includegraphics[width=8.7cm]{./results/benchmark_simple_shear/convergence.pdf}
+\includegraphics[width=8.7cm]{./results/benchmark_simple_shear/vrms.pdf}
+\end{center}
 
 
 
@@ -458,19 +548,88 @@ for example.
 right column: analytical solution.}
 \end{center}
 
+We recover a linear convergence for the velocity error and a $h^{1/2}$
+convergence for the pressure error as in REF:
 \begin{center}
 \includegraphics[width=8.7cm]{./results/benchmark_solvi/convergence.pdf}
 \includegraphics[width=8.7cm]{./results/benchmark_solvi/vrms.pdf}
 \end{center}
 
+\newpage
+\begin{center}
+\includegraphics[width=14cm]{./results/benchmark_solvi/img_solution_0000.png}
+\end{center}
 
 
-\subsection{Poiseuille nonlinear}
+%-----------------
+\subsection{SolKz}
 
+The viscosity is a function of the space coordinates and is given by  
+\[
+\eta(y)=\exp(2By) \quad {\rm with} \quad B=13.8155
+\]
+It is not a discontinuous function but grows exponentially with the 
+vertical coordinate so that its overall variation is $10^6$. 
+The forcing is chosen by imposing a spatially variable density variation as follows:
+\[
+\rho(x,y)=\sin(2y) \cos(3\pi x)
+\]
+Free slip boundary conditions are imposed on all sides of the domain.
+This benchmark is presented in \cite{zhon96} and is studied in \cite{dumg11} 
+and \cite{gemd13}.
+
+\begin{center}
+\includegraphics[width=8cm]{./results/benchmark_solkz/vel}
+\includegraphics[width=8cm]{./results/benchmark_solkz/press}
+\end{center}
+
+Despite an elemental averaging of the particle properties
+we recover a quadratic convergence for the velocity error and a linear
+convergence for the pressure error as expected:
+\begin{center}
+\includegraphics[width=8.7cm]{./results/benchmark_solkz/convergence.pdf}
+\includegraphics[width=8.7cm]{./results/benchmark_solkz/vrms.pdf}
+\end{center}
+
+\newpage
+\begin{center}
+\includegraphics[width=14cm]{./results/benchmark_solkz/img_solution_0000.png}
+\end{center}
+
+
+
+
+%---------------------------------
+\subsection{Channel flow with stress-dependent rheology}
+
+This analytical benchmark is carried out in 
+\textcite{geyu03,frbt19,gery10,elga10}.
+
+It consists of a vertical flow of a non-Newtonian (with a power-law index $n$) 
+viscous medium in a section of an infinite vertical channel of width L in the
+absence of gravity. 
+The flow is driven by a pressure gradient $\partial P/\partial y$.
+along the channel and no-slip conditions at the walls.
+The viscosity of the non-Newtonian flow is defined by the following 
+equation:
+\[
+\eta_{eff} = \frac12 A^{-1/n} \dot\varepsilon_e^{-1+1/n}
+\] 
+
+
+{\color{red} I need to rederive it from scratch myself, 
+write it all in fieldstone and then implement it here.}
+
+%---------------------------------
 \subsection{(E)VP experiment gerya 3 mats}
 
+
+
+%---------------------------------
 \subsection{darcy? simpson ?}
 
+
+%---------------------------------
 \subsection{gaussian pulse diffusion in time}
 
 
