@@ -12,7 +12,7 @@ from constants_and_tools import *
 from inputs import *
 
 #@jit(nopython=True)
-def material_model(x,y,ee,T,imat,iter,plastic_strain_marker):
+def material_model(x,y,ee,T,imat,iter,plastic_strain_marker,pressure,pf):
 
     #---------------------------
     if experiment<0: #benchmarks
@@ -52,9 +52,9 @@ def material_model(x,y,ee,T,imat,iter,plastic_strain_marker):
           if imat==1:
              phi=37/180*np.pi
              c=1e8
-             pressure=0
+             #pressure=0
              sr=max(1e-19,ee) # minimum strain rate
-             yield_DP=pressure*np.sin(phi)+c*np.cos(phi)
+             yield_DP=max(0,pressure*np.sin(phi)+c*np.cos(phi))
              val=yield_DP/2/sr
              is_plastic=True
              rho=2700

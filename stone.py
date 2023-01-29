@@ -347,6 +347,7 @@ v   =np.zeros(NV,dtype=np.float64)
 exx = np.zeros(NV,dtype=np.float64)  
 eyy = np.zeros(NV,dtype=np.float64)  
 exy = np.zeros(NV,dtype=np.float64)  
+p   =np.zeros(NP,dtype=np.float64)    
         
 # since all elements are identical, the jacobian and derived 
 # products are all equal and can also be computed analytically
@@ -413,14 +414,17 @@ for istep in range(0,nstep):
 
         for im in range(0,nmarker):
             iel=swarm_iel[im]
-            NNNV[0:mV]=NNV(swarm_r[im],swarm_s[im])
+            NNNV=NNV(swarm_r[im],swarm_s[im])
+            NNNP=NNP(swarm_r[im],swarm_s[im])
             swarm_exx[im]=sum(NNNV[0:mV]*exx[iconV[0:mV,iel]])
             swarm_eyy[im]=sum(NNNV[0:mV]*eyy[iconV[0:mV,iel]])
             swarm_exy[im]=sum(NNNV[0:mV]*exy[iconV[0:mV,iel]])
+            pm=sum(NNNP[0:mP]*p[iconP[0:mP,iel]])
+            Pfm=sum(NNNV[0:mV]*Pf[iconV[0:mV,iel]])
             swarm_ee[im]=np.sqrt(0.5*(swarm_exx[im]**2+swarm_eyy[im]**2+2*swarm_exy[im]**2) ) 
-            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],dum,swarm_rho[im]=material_model(swarm_x[im],\
-                                    swarm_y[im],swarm_ee[im],background_temperature,\
-                                    swarm_mat[im],iter,swarm_plastic_strain_eff[im])
+            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],dum,swarm_rho[im]=\
+            material_model(swarm_x[im],swarm_y[im],swarm_ee[im],background_temperature,\
+                           swarm_mat[im],iter,swarm_plastic_strain_eff[im],pm,Pfm)
             plastic_strain_eff_elemental[iel]+=swarm_plastic_strain_eff[im]               
             rho_elemental[iel]+=swarm_rho[im]               
             if abs(avrg)==1 : # arithmetic
@@ -776,8 +780,11 @@ for istep in range(0,nstep):
            swarm_r[im]=-1.+2*(swarm_x[im]-xV[iconV[0,iel]])/hx
            swarm_s[im]=-1.+2*(swarm_y[im]-yV[iconV[0,iel]])/hy
            NNNV[0:mV]=NNV(swarm_r[im],swarm_s[im])
+           NNNP[0:mP]=NNP(swarm_r[im],swarm_s[im])
            um=sum(NNNV[0:mV]*u[iconV[0:mV,iel]])
            vm=sum(NNNV[0:mV]*v[iconV[0:mV,iel]])
+           pm=sum(NNNP[0:mP]*p[iconP[0:mP,iel]])
+           Pfm=sum(NNNV[0:mV]*Pf[iconV[0:mV,iel]])
            exxm=sum(NNNV[0:mV]*exx[iconV[0:mV,iel]])
            eyym=sum(NNNV[0:mV]*eyy[iconV[0:mV,iel]])
            exym=sum(NNNV[0:mV]*exy[iconV[0:mV,iel]])
@@ -807,7 +814,7 @@ for istep in range(0,nstep):
            swarm_ee[im]=effective(swarm_exx[im],swarm_eyy[im],swarm_exy[im]) 
            swarm_eta[im],swarm_is_plastic[im],swarm_yield[im],swarm_sw_level[im],swarm_rho[im]=\
            material_model(swarm_x[im],swarm_y[im],swarm_ee[im],
-                     background_temperature,swarm_mat[im],iter,swarm_plastic_strain_eff[im])
+                     background_temperature,swarm_mat[im],iter,swarm_plastic_strain_eff[im],pm,Pfm)
            #assign dev stress values
            swarm_tauxx[im]=2*exxm*swarm_eta[im]
            swarm_tauyy[im]=2*eyym*swarm_eta[im]
