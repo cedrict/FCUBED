@@ -562,8 +562,8 @@ for istep in range(0,nstep):
 
             #----------------------------------
             # compute nonlinear residual
-            #RV_el=K_el.dot(V_el)+G_el.dot(P_el)-f_el
-            #RP_el=G_el.T.dot(V_el)-h_el
+            RV_el=K_el.dot(V_el)+G_el.dot(P_el)-f_el
+            RP_el=G_el.T.dot(V_el)-h_el
 
             # scaling of blocks 
             G_el*=eta_ref/Ly
@@ -719,7 +719,7 @@ for istep in range(0,nstep):
         chi_u=LA.norm(u-umem,2)/v_ref # vx convergence indicator
         chi_v=LA.norm(v-vmem,2)/v_ref # vy convergence indicator
 
-        if iter==0: RV0=1 #LA.norm(RV,2)
+        if iter==0: RV0=LA.norm(RV,2)
 
         print('          -> Nonlinear residual V,P:',LA.norm(RV,2)/RV0,LA.norm(RP,2))
 

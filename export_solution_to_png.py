@@ -59,7 +59,7 @@ def export_solution_to_png(Lx,Ly,nnx,nny,nelx,nely,x,y,u,v,q,exx,eyy,exy,ee,eta,
    onePlot(axes,fig,Pf_temp,  2, 2, "$P_f$",                  "x", "y", extent,  Lx,  Ly, 'twilight_shifted')
    onePlot(axes,fig,K_temp,   3, 0, "$K$",                    "x", "y", extent,  Lx,  Ly, 'gist_earth')
    onePlot(axes,fig,phi_temp, 3, 1, "$\phi$",                 "x", "y", extent,  Lx,  Ly, 'gnuplot')
-   onePlot(axes,fig,H_temp,   3, 2, "$H",                     "x", "y", extent,  Lx,  Ly, 'ocean')
+   onePlot(axes,fig,H_temp,   3, 2, "$H$",                    "x", "y", extent,  Lx,  Ly, 'ocean')
 
    plt.subplots_adjust(hspace=0.5)
 

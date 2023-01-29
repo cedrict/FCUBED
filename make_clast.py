@@ -16,8 +16,23 @@ import jatten
 def make_clast(nmarker,swarm_x,swarm_y,swarm_mat,swarm_plastic_strainxx,\
                swarm_plastic_strainyy,swarm_plastic_strainxy):
    
-   if experiment==-1 or experiment==-2 or experiment==-3:
+   if experiment==-1 or experiment==-2 or experiment==-3 or experiment==-4:
       swarm_mat[:]=1
+
+   if experiment==-5: #viscoplastic-block
+      #1: block
+      #2: air
+      #3: inclusion
+      swarm_mat[:]=2
+
+      for im in range(0,nmarker):
+          if swarm_y[im]>25e3 and swarm_y[im]<75e3: 
+             swarm_mat[im]=1
+
+      for im in range(0,nmarker):
+          if abs(swarm_x[im]-Lx/2)<12.5e3/2 and abs(swarm_y[im]-Ly/2)<12.5e3/2:
+             swarm_mat[im]=3
+
 
    if experiment==1: # clast
 

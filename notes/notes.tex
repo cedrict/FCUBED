@@ -632,6 +632,45 @@ write it all in fieldstone and then implement it here.}
 %---------------------------------
 \subsection{(E)VP experiment gerya 3 mats}
 
+The benchmark is a modified version of Exercise 13.2 from
+Introduction to Numerical Geodynamic Modeling (Taras Gerya,
+2019, doi:https://doi.org/10.1017/9781316534243).
+
+It is carried out in ASPECT, and the input file is in {\tt benchmarks/viscoelastic\_plastic\_shear\_bands/gerya\_2019}.
+
+The domain is $100\times 100~\si{\kilo\meter}$.
+Velocity boundary conditions (vel=5e-9 m/s on each boundary)
+which produces a background strain-rate of 10e-13 1/s.
+
+There are three materials in the domain: block, air, inclusion.
+
+Air is below $y=25~\si{\kilo\meter}$ and above  $y=75~\si{\kilo\meter}$. 
+Its viscosity is $\eta=10^{17}$
+
+
+The block is inside $25~\si{\kilo\meter}y<75~\si{\kilo\meter}$ and is characterised
+by a cohesion of 100MPa and an angle of friction of 37, with $\eta=10^{23}$. 
+
+The inclusion is placed in the middle of the domain: it is a square of size $12.5~\si{\kilo\meter}$, 
+characterised by a cohesion of c=10MPa??. $\eta=10^{17}$
+
+
+All three materials share the same density $\rho=2700~\si{\kg\per\cubic\meter}$
+but this is actually irrelevant since gravity is set to zero.
+
+
+
+Viscosities are limited between 1e17 and 1e23.
+
+\includegraphics[width=14cm]{./results/benchmark_viscoplastic_block/conv.pdf}
+
+\newpage
+\begin{center}
+\includegraphics[width=14cm]{./results/benchmark_viscoplastic_block/img_solution_0000.png}
+\end{center}
+
+TO FINISH and RUN at correct resolution!
+
 
 
 %---------------------------------

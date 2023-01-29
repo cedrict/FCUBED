@@ -41,6 +41,27 @@ def material_model(x,y,ee,T,imat,iter,plastic_strain_marker):
           strain_level=0
           rho=np.sin(2*y)*np.cos(3*np.pi*x)
 
+       if experiment==-5: #visco-plastic block
+
+          val=1e17 #both air and inclusion
+          is_plastic=False
+          yield_DP=0
+          strain_level=0
+          rho=2700
+
+          if imat==1:
+             phi=37/180*np.pi
+             c=1e8
+             pressure=0
+             sr=max(1e-19,ee) # minimum strain rate
+             yield_DP=pressure*np.sin(phi)+c*np.cos(phi)
+             val=yield_DP/2/sr
+             is_plastic=True
+             rho=2700
+          
+          val=min(val,1e23)
+          val=max(val,1e17)
+
     #--------------------------
     elif experiment==1: # clast
 

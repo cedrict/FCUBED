@@ -16,10 +16,11 @@ avrg=3
 # -2: simple shear
 # -3: solvi
 # -4: solkz
+# -5: viscoplastic-block
 
 # 1: clast
 
-experiment=1
+experiment=-5
 
 ###################################################################################################
 
@@ -34,6 +35,9 @@ if experiment==-3:
 
 if experiment==-4:
    from inputs_m4 import *
+
+if experiment==-5:
+   from inputs_m5 import *
 
 if experiment==1:
    from inputs_p1 import *

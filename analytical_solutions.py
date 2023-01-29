@@ -57,6 +57,12 @@ def analytical_solution(x,y,experiment):
        import solkz
        vx,vy,p=solkz.SolKzSolution(x,y)
 
+    #-----------------------------
+    if experiment==-5: #viscoplastic block
+       vx=0
+       vy=0
+       p=0
+
     else:
        exit("experiment unknown in analytical_solution")
 

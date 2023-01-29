@@ -82,6 +82,19 @@ def define_bc_V(Lx,Ly,NV,bc_fix,bc_val,xV,yV,experiment,total_time,v_ref):
            if yV[i]>(Ly-eps):
               bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = 0
 
+    #--------------------------
+    elif experiment==-5: #visco-plastic block
+
+       for i in range(0, NV):
+           if xV[i]<eps:
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = v_ref
+           if xV[i]>(Lx-eps):
+              bc_fix[i*ndofV+0]   = True ; bc_val[i*ndofV+0] = -v_ref
+           if yV[i]<eps:
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = -v_ref
+           if yV[i]>(Ly-eps):
+              bc_fix[i*ndofV+1]   = True ; bc_val[i*ndofV+1] = v_ref
+
     #----------------------------------------------
     elif experiment==1: # clast under simple shear
 

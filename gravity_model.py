@@ -29,6 +29,10 @@ def gravity_model(x,y):
           gx=0
           gy=1
 
+       if experiment==-5: #viscoplastic block
+          gx=0
+          gy=0
+
     #--------------------------
     elif experiment==1: # clast
 
